@@ -1,0 +1,4 @@
+"Instructions: Use the full path for the directory with single slashes. Sample names should not include file extensions. Mass shifts can be any positive or negative number in decimal format. Sequence is case-sensitive; should use single-letter amino acid code; and must only contain characters included in the ""amino_acids.csv"" parameter file.",,,,,
+directory,bio sample,syn sample,N-term mass shift,sequence,C-term mass shift
+C:\Users\wilest\Desktop\P-VIS\benchmarking detailed\180918_TAW_25cm_NOD_BALB,NOD2_E3,synpep,0,DLQTLAL-NAAW,-29.9782
+C:\Users\wilest\Desktop\P-VIS\benchmarking detailed\180918_TAW_25cm_NOD_BALB,NOD2_E3,synpep,0,DLQTLAL-NAAR,0
