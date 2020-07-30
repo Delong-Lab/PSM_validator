@@ -33,7 +33,8 @@ for row in queries_contents:
         biological, synthetic = analysis[1], analysis[2]
         sequence = analysis[4]
         N_term_shift, C_term_shift = float(analysis[3]), float(analysis[5])
-        results = validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic)
+        verbose = analysis[6]
+        results = validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic, verbose)
         output = analysis + list(results)
         batch_results_writer.writerow(output)
     row_num = row_num + 1

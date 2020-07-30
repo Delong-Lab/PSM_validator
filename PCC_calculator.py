@@ -2,18 +2,19 @@ import math
 
 ##################################################################################################################################################################
 
-def PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_scan):
+def PCC_calculator(abund_thresh,PCC_abund_thresh,pro_mz_tol,leading_bio_scan,leading_syn_scan):
 
     '''    
     PCC: Pair data
-        For each peak in the syn spectrum, check the peaks in the bio spectrum one by one to see if any have an m/z within +/-20 ppm. If so, pair the two peaks.
+        For each peak in the syn spectrum, check the peaks in the bio spectrum one by one to see if any have an m/z within +/-pro_mz_tol. If so, pair the two peaks.
         If more than one match is found, use the one with the closest m/z.
         If a match cannot be found, designate an abundance of zero for this m/z in the bio spectrum.
     PCC: Filter noise from peak lists (based on fixed, user-defined threshold. Could use alternative approaches like avg + 2SD)
     '''
 
     warning = "none"
-    syn_list_filtered=[]
+    syn_list_filtered = []
+    biomin, synmin = 0, 0
     if leading_bio_scan==("Missing spectrum") or leading_syn_scan==("Missing spectrum"):
         PCC_r="Missing spectrum"
         if leading_bio_scan==("Missing spectrum") and leading_syn_scan==("Missing spectrum"):
@@ -24,6 +25,18 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_sc
             warning = "syn run"
         
     else:
+        bio_pre = float(leading_bio_scan[3][0][8:])
+        z = int(leading_bio_scan[4][0][7])
+        syn_pre = float(leading_syn_scan[3][0][8:])
+        increment = 1/z
+        bio_pre_list = [bio_pre, bio_pre + increment, bio_pre + 2*increment]
+        syn_pre_list = [syn_pre, syn_pre + increment, syn_pre + 2*increment]
+        bio_window, syn_window = [], []
+        for i in range(0, len(bio_pre_list)):
+            bio_window.append([bio_pre_list[i] - bio_pre_list[i]/1000000*pro_mz_tol, bio_pre_list[i] + bio_pre_list[i]/1000000*pro_mz_tol])
+        for i in range(0, len(syn_pre_list)):
+            syn_window.append([syn_pre_list[i] - syn_pre_list[i]/1000000*pro_mz_tol, syn_pre_list[i] + syn_pre_list[i]/1000000*pro_mz_tol])
+        
         bio_list=[]
         for i in range(5,len(leading_bio_scan)-1):
             bio_list.append(leading_bio_scan[i])
@@ -33,10 +46,10 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_sc
         for i in range(0,len(syn_list)):
             mz=float(syn_list[i][0])
             for j in range(0,len(bio_list)):
-                if ((mz-mz/1000000*20) <= float(bio_list[j][0]) <= (mz+mz/1000000*20)) and (len(syn_list[i])==2):
+                if ((mz-mz/1000000*pro_mz_tol) <= float(bio_list[j][0]) <= (mz+mz/1000000*pro_mz_tol)) and (len(syn_list[i])==2):
                     syn_list[i].append(bio_list[j][1])
                     syn_list[i].append(bio_list[j][0])
-                elif ((mz-mz/1000000*20) <= float(bio_list[j][0]) <= (mz+mz/1000000*20)) and (len(syn_list[i])>2) and (abs(mz-float(bio_list[j][0])) < abs(mz-float(syn_list[i][3]))):
+                elif ((mz-mz/1000000*pro_mz_tol) <= float(bio_list[j][0]) <= (mz+mz/1000000*pro_mz_tol)) and (len(syn_list[i])>2) and (abs(mz-float(bio_list[j][0])) < abs(mz-float(syn_list[i][3]))):
             #If the previous match and the current match are equally good, algorithm keeps the first match (lower m/z).
             #This makes sense because software is scanning from low to high so you would prioritize what is likely to be the C12 peak.
                     syn_list[i][2]=bio_list[j][1]
@@ -70,7 +83,7 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_sc
             #Now that you deleted this match, you need to see if there was a rank2 match in the bio spectrum. Make sure you don't add back the rank1 match.
                         syn_mz=float(syn_list[n][0])
                         for o in range(0,len(bio_list)):
-                            if ((syn_mz-syn_mz/1000000*20) <= float(bio_list[o][0]) <= (syn_mz+syn_mz/1000000*20)) and (float(bio_list[o][0]) != mz) and (abs(syn_mz-float(bio_list[o][0])) < abs(syn_mz-float(syn_list[n][3]))):
+                            if ((syn_mz-syn_mz/1000000*pro_mz_tol) <= float(bio_list[o][0]) <= (syn_mz+syn_mz/1000000*pro_mz_tol)) and (float(bio_list[o][0]) != mz) and (abs(syn_mz-float(bio_list[o][0])) < abs(syn_mz-float(syn_list[n][3]))):
             #The syn_list row here will always be 4 columns long so don't need to check its length. 
                                 syn_list[n][2]=bio_list[o][1]
                                 syn_list[n][3]=bio_list[o][0]
@@ -90,7 +103,7 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_sc
                 print("The following m/z in the bio spectrum was used more than once:")
                 print(mz)
             elif times_used==0:
-                syn_list.append([bio_list[p][0],0,bio_list[p][1],0,"bio_only"])
+                syn_list.append([0,0,bio_list[p][1],bio_list[p][0]])
             #Check if you have any instances where when matching bio peaks to syn peaks the m/z got out of order.
         for r in range(0,len(syn_list)-1):
             if (float(syn_list[r][3]) > float(syn_list[r+1][3])) and (float(syn_list[r+1][3]) != 0):
@@ -103,14 +116,26 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_sc
         
         #convert pcc abund thresh into a number relative to max and then add to conditions below
         
-        syn1max = max(syn_list, key = lambda x: float(x[1]))
-        syn2max = max(syn_list, key = lambda x: float(x[2]))
-        PCC_syn1min = float(syn1max[1])*PCC_abund_thresh/100
-        PCC_syn2min = float(syn2max[2])*PCC_abund_thresh/100
+        syn_list_nopre = []
+        for i in range(len(syn_list)):            
+            precursor = "no"
+            for j in range(0, len(bio_window)):
+                if bio_window[j][0] <= float(syn_list[i][3]) <= bio_window[j][1]:
+                    precursor = "yes"
+            for j in range(0, len(syn_window)):
+                if syn_window[j][0] <= float(syn_list[i][0]) <= syn_window[j][1]:
+                    precursor = "yes"
+            if precursor == "no":
+                syn_list_nopre.append(syn_list[i])
 
-        for i in range(len(syn_list)):
-            if (float(syn_list[i][1])>abund_thresh and float(syn_list[i][1])>PCC_syn1min)  or (float(syn_list[i][2])>abund_thresh and float(syn_list[i][2])>PCC_syn2min):
-                syn_list_filtered.append(syn_list[i])
+        syn1max = max(syn_list_nopre, key = lambda x: float(x[1]))
+        syn2max = max(syn_list_nopre, key = lambda x: float(x[2]))
+        synmin = float(syn1max[1])*PCC_abund_thresh/100
+        biomin = float(syn2max[2])*PCC_abund_thresh/100
+
+        for i in range(len(syn_list_nopre)):            
+            if (float(syn_list_nopre[i][1])>abund_thresh and float(syn_list_nopre[i][1])>synmin) or (float(syn_list_nopre[i][2])>abund_thresh and float(syn_list_nopre[i][2])>biomin):
+                syn_list_filtered.append(syn_list_nopre[i])
 
         #PCC: Calculate sample PCC
 
@@ -132,6 +157,6 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_sc
             sum_syn_sq=sum_syn_sq+(float(syn_list_filtered[i][1])-filtered_syn_avg)**2
         PCC_r=r_numerator/(math.sqrt(sum_bio_sq)*math.sqrt(sum_syn_sq))
 
-    return(syn_list_filtered,PCC_r, warning)
+    return(syn_list_filtered,PCC_r,warning,biomin,synmin)
     
 ##################################################################################################################################################################

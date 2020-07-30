@@ -10,7 +10,7 @@ from statistical_analysis import PCC_percentile_rank, RT_percentile_rank
 
 ##################################################################################################################################################################
 
-def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic):
+def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic, verbose):
 
     now = datetime.now()
     now = time_format(now)
@@ -100,6 +100,9 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     results_writer.writerow([])
     results_writer.writerow(["sequence:", sequence_formatted])
     results_writer.writerow([])
+    results_writer.writerow(["neutral mass:", sequence_mass])
+    results_writer.writerow(["", "+1", "+2", "+3", "+4"])
+    results_writer.writerow(["m/z", (sequence_mass + 1*1.007276435)/1, (sequence_mass + 2*1.007276435)/2, (sequence_mass + 3*1.007276435)/3, (sequence_mass + 4*1.007276435)/4])
     results_writer.writerow(["Precursor mass tolerance (+/- ppm):", pre_mz_tol])
     results_writer.writerow(["Product ion mass tolerance (+/- ppm):", pro_mz_tol])
     results_writer.writerow(["Product ion abundance threshold for scoring:", abund_thresh])
@@ -183,6 +186,8 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Tables") 
     os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures") 
+    if verbose == "Y":
+        os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures\\ISPs")         
     
     top_bio_hit=open(str(out_dir + "\\Tables\\" + sequence_formatted + "_bio_best_hit.mgf"),"w",newline="")
     top_bio_hit_writer=csv.writer(top_bio_hit,delimiter=" ")
@@ -252,7 +257,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     else:
         results_writer.writerow(["winning % backbone coverage:", round(query_syn_score, 1), "% "+ion_type+" intensity:", round(query_syn_weighted_score, 1), "charge:", syn_charge_list[len(syn_charge_list)-1]])    
     results_writer.writerow([])
-    
+
     print("###############################################################################################################################",end="\n\n")
     print("CALCULATING PEARSON CORRELATION COEFFICIENTS (PCC) FOR INTERNAL STANDARDS...", end="\n\n")    
     print("[  sequence  ]            [bio % backbone coverage]  [bio % "+ion_type+" intensity]  [Pearson r]  [# of pairs]  [z]") 
@@ -271,8 +276,19 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         if len(top_bio_scans[i])>1 and len(top_syn_scans[i])>1:
             leading_bio_scan = copy.deepcopy(top_bio_scans[i][3])
             leading_syn_scan = copy.deepcopy(top_syn_scans[i][3])
-            PCC_results = PCC_calculator(abund_thresh,PCC_abund_thresh,leading_bio_scan,leading_syn_scan)
+            PCC_results = PCC_calculator(abund_thresh,PCC_abund_thresh,pro_mz_tol,leading_bio_scan,leading_syn_scan)
             PCC_r = PCC_results[1]
+            biomin, synmin = PCC_results[3], PCC_results[4]
+            if PCC_r != "Missing spectrum" and i == (len(top_bio_scans)-1):
+                mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biomin, synmin, top_bio_scans[len(top_bio_scans)-1][3], top_bio_scans[len(top_bio_scans)-1][4], top_bio_scans[len(top_bio_scans)-1][5], top_syn_scans[len(top_syn_scans)-1][3], top_syn_scans[len(top_syn_scans)-1][4], top_syn_scans[len(top_syn_scans)-1][5], ion_type, out_dir+"\\Figures", sequence_formatted + "_mirror.png")    
+            if verbose == "Y" and PCC_r != "Missing spectrum" and i != (len(top_bio_scans)-1):
+                ISP_sequence = top_bio_scans[i][0]
+                ISP_sequence_formatted = ISP_sequence
+                if N_term_shift_list[i] != 0:
+                    ISP_sequence_formatted = "("+str(round(N_term_shift_list[i],2))+")"+ISP_sequence_formatted 
+                if C_term_shift_list[i] != 0:
+                    ISP_sequence_formatted = ISP_sequence_formatted+"("+str(round(C_term_shift_list[i],2))+")"
+                mirror_plot(ISP_sequence.find("-"), ISP_sequence, N_term_shift_list[i], C_term_shift_list[i], abund_thresh, biomin, synmin, top_bio_scans[i][3], top_bio_scans[i][4], top_bio_scans[i][5], top_syn_scans[i][3], top_syn_scans[i][4], top_syn_scans[i][5], ion_type, out_dir+"\\Figures\\ISPs", ISP_sequence_formatted + "_mirror.png")                    
             if PCC_r != "Missing spectrum" and len(PCC_results[0]) < min_pairs_PCC:
                 if i == (len(top_bio_scans)-1):
                     print("")
@@ -324,7 +340,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
                 print(f" {top_bio_scans[i][0]:24}  {round(top_bio_scans[i][1]):>23}  {round(top_bio_scans[i][2]):>21} {PCC_r_round:>12}  {pairs:>12}  {syn_charge_list[i]:>3}") 
                 results_writer.writerow([top_bio_scans[i][0], round(top_bio_scans[i][1]), round(top_bio_scans[i][2]), PCC_r_round, pairs, syn_charge_list[i]])
                 score_list.append(top_bio_scans[i][1])
-                weighted_score_list.append(top_bio_scans[i][2])
+                weighted_score_list.append(top_bio_scans[i][2])                    
     
     #Determine prediction interval for PCC distribution
     
@@ -344,7 +360,6 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     #Generate plots
     
-    mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, PCC_abund_thresh, top_bio_scans[len(top_bio_scans)-1][3], top_bio_scans[len(top_bio_scans)-1][4], top_bio_scans[len(top_bio_scans)-1][5], top_syn_scans[len(top_syn_scans)-1][3], top_syn_scans[len(top_syn_scans)-1][4], top_syn_scans[len(top_syn_scans)-1][5], ion_type, out_dir+"\\Figures", sequence_formatted + "_mirror.png")
     regression_plot(query_PCC_syn, query_PCC_bio, "NA", "NA", "NA", "NA", sequence_formatted+" correlation", "syn raw intensity", "bio raw intensity", "Y", "Y", "PCC="+str(round(query_PCCr, 3)), out_dir+"\\Figures", sequence_formatted+"_correlation")
     swarm_plot(PCC_list, "standards", query_PCCr, sequence_formatted, "Pearson correlation coefficient (PCC)", "Pearson r", out_dir, sequence_formatted, "_PCC_dist.png", PCCr_threshold, 1, round(query_PCCr_percentile,1))   
     
@@ -429,6 +444,15 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
             if i != len(bio_RTmzs) - 1:
                 print(f" {top_bio_scans[i][0]:24}  {round(bio_RT_results[0],1):6}  {round(syn_RT_results[0],1):>8}  {round(syn_RT_results[0]-bio_RT_results[0],1):>17}") 
                 results_writer.writerow([top_bio_scans[i][0], round(bio_RT_results[0],1), round(syn_RT_results[0],1), round(syn_RT_results[0]-bio_RT_results[0],1)])
+                if verbose == "Y":
+                    ISP_sequence = top_bio_scans[i][0]
+                    ISP_sequence_formatted = ISP_sequence
+                    if N_term_shift_list[i] != 0:
+                        ISP_sequence_formatted = "("+str(round(N_term_shift_list[i],2))+")"+ISP_sequence_formatted 
+                    if C_term_shift_list[i] != 0:
+                        ISP_sequence_formatted = ISP_sequence_formatted+"("+str(round(C_term_shift_list[i],2))+")"
+                    EIC(bio_RT_results[1], bio_RT_results[2], bio_RT_results[0], "biological run", syn_RT_results[1], syn_RT_results[2], syn_RT_results[0], "synthetic run", ISP_sequence_formatted, out_dir+"\\Figures\\ISPs", ISP_sequence_formatted + "_EIC.png")
+
             else:
                 bio_EICx = bio_RT_results[1]
                 bio_EICy = bio_RT_results[2]

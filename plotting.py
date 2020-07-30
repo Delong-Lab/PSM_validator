@@ -84,7 +84,7 @@ def regression_plot(x_values, y_values, series_name, query_x, query_y, query_nam
     
 ##################################################################################################################################################################
 
-def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, PCC_abund_thresh, bio_scan, bio_L_ions, bio_R_ions, syn_scan, syn_L_ions, syn_R_ions, ion_type, out_dir, filename):
+def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biomin, synmin, bio_scan, bio_L_ions, bio_R_ions, syn_scan, syn_L_ions, syn_R_ions, ion_type, out_dir, filename):
     
     biox,bioy=[],[]
     bioLx,bioLy=[],[]
@@ -103,7 +103,7 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, PCC_
     for i in range(len(bioy_norm)):
         bioy_norm[i]=bioy_norm[i]/bioy_max
     for i in range(len(biox)):
-        if bioy[i] >= bioy_max*PCC_abund_thresh/100:
+        if bioy[i] >= biomin and bioy[i] >= abund_thresh:
             biox_max = biox[i]
     xlimits.append(biox_max)        
     xlimits.append(min(biox))
@@ -116,7 +116,7 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, PCC_
     for i in range(len(syny_norm)):
         syny_norm[i]=-syny_norm[i]/syny_max
     for i in range(len(synx)):
-        if syny[i] >= syny_max*PCC_abund_thresh/100:
+        if syny[i] >= synmin and syny[i] >= abund_thresh:
             synx_max = synx[i]
     xlimits.append(synx_max)       
     xlimits.append(min(synx))
@@ -250,8 +250,8 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, PCC_
         marker = stemplot[0]
         plt.setp(marker, markersize = 5)        
     plt.legend(loc="lower right", fontsize="x-large")
-    bio_hline = max(PCC_abund_thresh/100, abund_thresh/bioy_max)
-    syn_hline = max(PCC_abund_thresh/100, abund_thresh/syny_max)
+    bio_hline = max(biomin/bioy_max, abund_thresh/bioy_max)
+    syn_hline = max(synmin/syny_max, abund_thresh/syny_max)
     plt.hlines(y=bio_hline, xmin=min(xlimits), xmax=max(xlimits), linestyles="dotted", lw=3)
     plt.hlines(y=-syn_hline, xmin=min(xlimits), xmax=max(xlimits), linestyles="dotted", lw=3)
     xrange = max(xlimits) - min(xlimits)
