@@ -1,4 +1,4 @@
-import os, csv, copy
+import os, csv, copy, math
 from datetime import datetime
 from auxiliary import time_format, timer
 from scoring_prep import sequence_mass_calculator, LR_ion_calculator, pre_mz_filter
@@ -35,7 +35,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     settings_contents=csv.reader(settings_file, delimiter=",")
     row_num = 0
     for row in settings_contents:
-        if row_num == 12:
+        if row_num == 13:
             parameter = list(row)
             settings.append(parameter[2])
         elif row_num > 1:
@@ -50,11 +50,12 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     PCC_abund_thresh = settings[3]
     min_score = settings[4]
     min_weighted_score = settings[5]
-    min_pairs_PCC = settings[6]
-    RTtol = settings[7]
-    min_intstd = settings[8]
-    percentile_thresh = settings[9]
-    ion_type = settings[10]
+    min_pairs_PCC = settings[6]    
+    min_PCC = settings[7]    
+    RTtol = settings[8]
+    min_intstd = settings[9]
+    percentile_thresh = settings[10]
+    ion_type = settings[11]
     
     amino_acids = {}
     amino_acids_file = open(scriptdir+"\\parameters\\amino_acids.csv")
@@ -92,7 +93,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted)
     out_dir=directory+"\\"+timestamp+"_"+sequence_formatted  
     
-    results=open(out_dir + "\\" + sequence_formatted + "_results.csv","w",newline="")
+    results=open(out_dir + "\\" + sequence_formatted + "_" + timestamp + "_results.csv","w",newline="")
     results_writer=csv.writer(results) 
     results_writer.writerow(["date (yymmdd):", date, "time (hhmmss):", time])  
     results_writer.writerow([])
@@ -185,7 +186,8 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         return(processing_time, "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "SYN RUN LACKS ANY SPECTRA WITH CORRECT PRECURSOR MASS")
     
     os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Tables") 
-    os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures") 
+    os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures")
+    os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures\\normality") 
     if verbose == "Y":
         os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures\\ISPs")         
     
@@ -260,9 +262,9 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
 
     print("###############################################################################################################################",end="\n\n")
     print("CALCULATING PEARSON CORRELATION COEFFICIENTS (PCC) FOR INTERNAL STANDARDS...", end="\n\n")    
-    print("[  sequence  ]            [bio % backbone coverage]  [bio % "+ion_type+" intensity]  [Pearson r]  [# of pairs]  [z]") 
+    print("[  sequence  ]            [bio % backbone coverage]  [bio % "+ion_type+" intensity]  [Pearson r]  [Fisher's z]  [# of pairs]  [z]") 
     results_writer.writerow(["RESULTS FOR INTERNAL STANDARDS..."])
-    results_writer.writerow(["[sequence]", "[bio % backbone coverage]", "[bio % "+ion_type+" intensity]", "[Pearson r]", "[# of pairs]", "[z]"])
+    results_writer.writerow(["[sequence]", "[bio % backbone coverage]", "[bio % "+ion_type+" intensity]", "[Pearson r]", "[Fisher's z]", "[# of pairs]", "[z]"])
     
     #PCC: Calculate
     
@@ -319,7 +321,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         if type(PCC_r)==float and i == (len(top_bio_scans)-1):
             query_PCCr =PCC_r
             syn_list_filtered = PCC_results[0] 
-        elif type(PCC_r)==float and i != (len(top_bio_scans)-1):
+        elif type(PCC_r)==float and i != (len(top_bio_scans)-1) and PCC_r >= min_PCC:
             PCC_list.append(PCC_r)
             PCC_r_round=round(PCC_r,3)  
             pairs=len(PCC_results[0])         
@@ -337,18 +339,20 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
                 print(f" {top_bio_scans[i][0]:24}  {PCC_r_round:69}")
                 results_writer.writerow([top_bio_scans[i][0], PCC_r_round])                
             else:
-                print(f" {top_bio_scans[i][0]:24}  {round(top_bio_scans[i][1]):>23}  {round(top_bio_scans[i][2]):>21} {PCC_r_round:>12}  {pairs:>12}  {syn_charge_list[i]:>3}") 
-                results_writer.writerow([top_bio_scans[i][0], round(top_bio_scans[i][1]), round(top_bio_scans[i][2]), PCC_r_round, pairs, syn_charge_list[i]])
+                Fisherz = math.atanh(PCC_r_round)
+                print(f" {top_bio_scans[i][0]:24}  {round(top_bio_scans[i][1]):>23}  {round(top_bio_scans[i][2]):>21}  {PCC_r_round:>11}  {round(Fisherz,3):>12}  {pairs:>12}  {syn_charge_list[i]:>3}") 
+                results_writer.writerow([top_bio_scans[i][0], round(top_bio_scans[i][1]), round(top_bio_scans[i][2]), PCC_r_round, round(Fisherz,3), pairs, syn_charge_list[i]])
                 score_list.append(top_bio_scans[i][1])
                 weighted_score_list.append(top_bio_scans[i][2])                    
     
     #Determine prediction interval for PCC distribution
     
-    PCCr_threshold, query_PCCr_percentile = PCC_percentile_rank(PCC_list, percentile_thresh/100, query_PCCr)
+    
+    PCCr_threshold, query_PCCr_percentile = PCC_percentile_rank(PCC_list, percentile_thresh/100, query_PCCr, out_dir, sequence_formatted)
     
     if len(PCC_list) < min_intstd:
         PCC_outcome = "Too few internal standards"
-    elif query_PCCr > PCCr_threshold:
+    elif query_PCCr > PCCr_threshold and query_PCCr >= min_PCC:
         PCC_outcome = "PASS"
     else:
         PCC_outcome = "FAIL"
@@ -478,7 +482,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     else:
         sorted_RTs, RT_pred_deltas, query_RT_pred_delta = RT_prediction(ref_RTs, test_RTs, query_ref_RT, query_test_RT)
         
-        delta_lo, delta_hi, query_percentile = RT_percentile_rank(RT_pred_deltas, percentile_thresh/100, query_RT_pred_delta)
+        delta_lo, delta_hi, query_percentile = RT_percentile_rank(RT_pred_deltas, percentile_thresh/100, query_RT_pred_delta, out_dir, sequence_formatted)
         
         if len(RT_pred_deltas) < min_intstd:
             RT_outcome = "Too few internal standards"

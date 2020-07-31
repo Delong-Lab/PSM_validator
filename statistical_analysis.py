@@ -1,9 +1,10 @@
-import math, statistics
+import os, math, statistics
 import scipy.stats as scistat
+import matplotlib.pyplot as plt
 
 ##################################################################################################################################################################
 
-def PCC_percentile_rank(r_list, percentile_thresh, query_r):
+def PCC_percentile_rank(r_list, percentile_thresh, query_r, out_dir, file_name):
     
 #r_list: list of Pearson r values for internal standards
 #conf_level: user-defined level for prediction interval (e.g., 0.9, 0.95)    
@@ -18,6 +19,25 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r):
             #hyperbolic tangent (which makes for cleaner code). I confirmed that both approaches give the same answer.
         z = math.atanh(r_list[i])
         z_list.append(z)
+        
+    #Test normality
+    
+#    alpha = 0.05
+    normality = scistat.normaltest(z_list)
+    normality_p = float(normality[1])
+#    if normality_p >= alpha:
+#        normality_check = "passed normality test"
+#    else:
+#        normality_check = "failed normality test"
+        
+    plt.figure(figsize=(5,5))
+    plt.hist(z_list, bins=10)
+    plt.xticks(fontsize="large")
+    plt.yticks(fontsize="large")
+    plt.title("normality of ISP PCCs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
+    os.chdir(out_dir+"\\Figures\\normality")
+    plt.savefig(file_name + "_PCC_normality", bbox_inches = "tight") 
+    plt.close()
     
     #Calculate summary statistics
     
@@ -46,7 +66,26 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r):
 
 ##################################################################################################################################################################
 
-def RT_percentile_rank(RT_pred_deltas, percentile_thresh, query_RT_pred_delta):
+def RT_percentile_rank(RT_pred_deltas, percentile_thresh, query_RT_pred_delta, out_dir, file_name):
+    
+    #Test normality
+    
+#    alpha = 0.05
+    normality = scistat.normaltest(RT_pred_deltas)
+    normality_p = float(normality[1])
+#    if normality_p >= alpha:
+#        normality_check = "passed normality test"
+#    else:
+#        normality_check = "failed normality test"
+        
+    plt.figure(figsize=(5,5))
+    plt.hist(RT_pred_deltas, bins=10)
+    plt.xticks(fontsize="large")
+    plt.yticks(fontsize="large")
+    plt.title("normality of ISP delta RTs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
+    os.chdir(out_dir+"\\Figures\\normality")
+    plt.savefig(file_name + "_deltaRT_normality", bbox_inches = "tight") 
+    plt.close()
     
     #Calculate summary statistics
     
