@@ -20,6 +20,12 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r, out_dir, file_name):
         z = math.atanh(r_list[i])
         z_list.append(z)
         
+    #Calculate summary statistics
+    
+    mean_z = statistics.mean(z_list)
+    std_z = statistics.stdev(z_list)
+    n_z = len(z_list)
+
     #Test normality
     
 #    alpha = 0.05
@@ -31,19 +37,21 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r, out_dir, file_name):
 #        normality_check = "failed normality test"
         
     plt.figure(figsize=(5,5))
-    plt.hist(z_list, bins=10)
+    plt.hist(z_list, bins=10, density=True)
+    z_range = max(z_list) - min(z_list)
+    step = z_range/100
+    x = [min(z_list)]
+    for i in range(1,101):
+        x.append(x[i-1]+step)
+    plt.plot(x, scistat.norm(mean_z,std_z).pdf(x))
+    plt.xlabel("Fisher z", fontsize="x-large")
+    plt.ylabel("probability density", fontsize="x-large")
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
     plt.title("normality of ISP PCCs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
     os.chdir(out_dir+"\\Figures\\normality")
     plt.savefig(file_name + "_PCC_normality", bbox_inches = "tight") 
     plt.close()
-    
-    #Calculate summary statistics
-    
-    mean_z = statistics.mean(z_list)
-    std_z = statistics.stdev(z_list)
-    n_z = len(z_list)
     
     #Calculate t-statistic for threshold
     
@@ -68,6 +76,12 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r, out_dir, file_name):
 
 def RT_percentile_rank(RT_pred_deltas, percentile_thresh, query_RT_pred_delta, out_dir, file_name):
     
+    #Calculate summary statistics
+    
+    mean = statistics.mean(RT_pred_deltas)
+    std = statistics.stdev(RT_pred_deltas)
+    n = len(RT_pred_deltas)
+
     #Test normality
     
 #    alpha = 0.05
@@ -79,19 +93,21 @@ def RT_percentile_rank(RT_pred_deltas, percentile_thresh, query_RT_pred_delta, o
 #        normality_check = "failed normality test"
         
     plt.figure(figsize=(5,5))
-    plt.hist(RT_pred_deltas, bins=10)
+    plt.hist(RT_pred_deltas, bins=10, density=True)
+    delta_range = max(RT_pred_deltas) - min(RT_pred_deltas)
+    step = delta_range/100
+    x = [min(RT_pred_deltas)]
+    for i in range(1,101):
+        x.append(x[i-1]+step)
+    plt.plot(x, scistat.norm(mean,std).pdf(x))
+    plt.xlabel("expected RT - syn RT (minutes)", fontsize="x-large")
+    plt.ylabel("probability density", fontsize="x-large")
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
     plt.title("normality of ISP delta RTs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
     os.chdir(out_dir+"\\Figures\\normality")
     plt.savefig(file_name + "_deltaRT_normality", bbox_inches = "tight") 
     plt.close()
-    
-    #Calculate summary statistics
-    
-    mean = statistics.mean(RT_pred_deltas)
-    std = statistics.stdev(RT_pred_deltas)
-    n = len(RT_pred_deltas)
     
     #Calculate t-statistic and prediction interval boundaries
     
