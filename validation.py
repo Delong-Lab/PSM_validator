@@ -35,7 +35,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     settings_contents=csv.reader(settings_file, delimiter=",")
     row_num = 0
     for row in settings_contents:
-        if row_num == 13:
+        if row_num == 14:
             parameter = list(row)
             settings.append(parameter[2])
         elif row_num > 1:
@@ -53,9 +53,10 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     min_pairs_PCC = settings[6]    
     min_PCC = settings[7]    
     RTtol = settings[8]
-    min_intstd = settings[9]
-    percentile_thresh = settings[10]
-    ion_type = settings[11]
+    acceptable_RTdev = settings[9]
+    min_intstd = settings[10]
+    percentile_thresh = settings[11]
+    ion_type = settings[12]
     
     amino_acids = {}
     amino_acids_file = open(scriptdir+"\\parameters\\amino_acids.csv")
@@ -465,7 +466,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     EIC(bio_EICx, bio_EICy, bio_RTs[len(bio_RTs)-1], "biological run", syn_EICx, syn_EICy, syn_RTs[len(syn_RTs)-1], "synthetic run", sequence_formatted, out_dir+"\\Figures", sequence_formatted + "_EIC.png")
     
-    #regression_plot(bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], syn_RTs[len(bio_RTs)-1], sequence_formatted, "retention time (RT) in minutes", "RT in biological run", "RT in synthetic run", "Y", "N", "N", out_dir+"\\Figures", sequence_formatted+"_RT")
+    regression_plot(bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], syn_RTs[len(bio_RTs)-1], sequence_formatted, "retention time (RT) in minutes", "RT in biological run", "RT in synthetic run", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_RT")
     regression_plot(bio_RTs[0:len(bio_RTs)-1], delta_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], delta_RTs[len(bio_RTs)-1], sequence_formatted, "raw delta RT", "RT in biological run (minutes)", "syn RT - bio RT (minutes)", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_deltaRT")
     
     ref_RTs, test_RTs = bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(syn_RTs)-1]
@@ -484,6 +485,11 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         
         delta_lo, delta_hi, query_percentile = RT_percentile_rank(RT_pred_deltas, percentile_thresh/100, query_RT_pred_delta, out_dir, sequence_formatted)
         
+        if delta_lo > -acceptable_RTdev:
+            delta_lo = -acceptable_RTdev
+        if delta_hi < acceptable_RTdev:
+            delta_hi = acceptable_RTdev
+
         if len(RT_pred_deltas) < min_intstd:
             RT_outcome = "Too few internal standards"
         elif delta_hi > query_RT_pred_delta > delta_lo:
