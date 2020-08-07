@@ -35,7 +35,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     settings_contents=csv.reader(settings_file, delimiter=",")
     row_num = 0
     for row in settings_contents:
-        if row_num == 14:
+        if row_num == 16:
             parameter = list(row)
             settings.append(parameter[2])
         elif row_num > 1:
@@ -53,10 +53,12 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     min_pairs_PCC = settings[6]    
     min_PCC = settings[7]    
     RTtol = settings[8]
-    acceptable_RTdev = settings[9]
-    min_intstd = settings[10]
-    percentile_thresh = settings[11]
-    ion_type = settings[12]
+    min_RT = settings[9]
+    max_RT = settings[10]
+    acceptable_RTdev = settings[11]
+    min_intstd = settings[12]
+    percentile_thresh = settings[13]
+    ion_type = settings[14]
     
     amino_acids = {}
     amino_acids_file = open(scriptdir+"\\parameters\\amino_acids.csv")
@@ -107,12 +109,16 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     results_writer.writerow(["m/z", (sequence_mass + 1*1.007276435)/1, (sequence_mass + 2*1.007276435)/2, (sequence_mass + 3*1.007276435)/3, (sequence_mass + 4*1.007276435)/4])
     results_writer.writerow(["Precursor mass tolerance (+/- ppm):", pre_mz_tol])
     results_writer.writerow(["Product ion mass tolerance (+/- ppm):", pro_mz_tol])
-    results_writer.writerow(["Product ion abundance threshold for scoring:", abund_thresh])
+    results_writer.writerow(["Product ion abundance threshold (noise threshold for scoring and PCC calculation):", abund_thresh])
     results_writer.writerow(["Product ion abundance threshold for PCC calculation (% of max):", PCC_abund_thresh])
     results_writer.writerow(["Minimum allowable % backbone coverage:", min_score])
     results_writer.writerow(["Minimum allowable % "+ion_type+" intensity:", min_weighted_score])
     results_writer.writerow(["Minimum number of pairs for PCC calculation:", min_pairs_PCC])
+    results_writer.writerow(["Minimum allowable PCC:", min_PCC])
     results_writer.writerow(["Window size for precursor extraction during RT determination (+/- minutes):", RTtol])
+    results_writer.writerow(["Lower bound for RT analysis (minutes; based on biological sample run)", min_RT])
+    results_writer.writerow(["Upper bound for RT analysis (minutes; based on biological sample run)", max_RT])
+    results_writer.writerow(["Manual threshold for deviation from predicted RT (+/- minutes)", acceptable_RTdev])
     results_writer.writerow(["Minimum number of internal standards for percentile rank calculation:", min_intstd])
     results_writer.writerow(["Minimum allowable percentile (%):", percentile_thresh])
     results_writer.writerow(["Fragment ion type ('"+ion_type+"' for CID or 'c/z' for ETD):", ion_type])
@@ -322,10 +328,11 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         if type(PCC_r)==float and i == (len(top_bio_scans)-1):
             query_PCCr =PCC_r
             syn_list_filtered = PCC_results[0] 
-        elif type(PCC_r)==float and i != (len(top_bio_scans)-1) and PCC_r >= min_PCC:
-            PCC_list.append(PCC_r)
+        elif type(PCC_r)==float and i != (len(top_bio_scans)-1):
             PCC_r_round=round(PCC_r,3)  
-            pairs=len(PCC_results[0])         
+            pairs=len(PCC_results[0])  
+            if PCC_r >= min_PCC:
+                PCC_list.append(PCC_r)
         else:
             PCC_r_round=PCC_r
         if i != (len(top_bio_scans)-1):
@@ -447,7 +454,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
             syn_RTs.append(syn_RT_results[0])
             delta_RTs.append(syn_RT_results[0] - bio_RT_results[0])  
             if i != len(bio_RTmzs) - 1:
-                print(f" {top_bio_scans[i][0]:24}  {round(bio_RT_results[0],1):6}  {round(syn_RT_results[0],1):>8}  {round(syn_RT_results[0]-bio_RT_results[0],1):>17}") 
+                print(f" {top_bio_scans[i][0]:24}  {round(bio_RT_results[0],2):6}  {round(syn_RT_results[0],2):>8}  {round(syn_RT_results[0]-bio_RT_results[0],2):>17}") 
                 results_writer.writerow([top_bio_scans[i][0], round(bio_RT_results[0],1), round(syn_RT_results[0],1), round(syn_RT_results[0]-bio_RT_results[0],1)])
                 if verbose == "Y":
                     ISP_sequence = top_bio_scans[i][0]
@@ -469,7 +476,12 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     regression_plot(bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], syn_RTs[len(bio_RTs)-1], sequence_formatted, "retention time (RT) in minutes", "RT in biological run", "RT in synthetic run", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_RT")
     regression_plot(bio_RTs[0:len(bio_RTs)-1], delta_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], delta_RTs[len(bio_RTs)-1], sequence_formatted, "raw delta RT", "RT in biological run (minutes)", "syn RT - bio RT (minutes)", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_deltaRT")
     
-    ref_RTs, test_RTs = bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(syn_RTs)-1]
+    ref_RTs, test_RTs = [],[]
+    for i in range(0, len(bio_RTs)-1):
+        if min_RT <= bio_RTs[i] <= max_RT:
+            ref_RTs.append(bio_RTs[i])
+            test_RTs.append(syn_RTs[i])
+    
     query_ref_RT, query_test_RT = bio_RTs[len(bio_RTs)-1], syn_RTs[len(syn_RTs)-1]
     
     if query_ref_RT >= max(ref_RTs) or query_ref_RT <= min(ref_RTs):
@@ -500,13 +512,13 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         print()
         print("###############################################################################################################################",end="\n\n")
         print("RT RESULTS (IN MINUTES) FOR "+sequence+"...",end="\n\n")
-        print("raw delta RT:", round(syn_RT_results[0]-bio_RT_results[0],1), "      deviation from expected RT:", round(query_RT_pred_delta,2),                           "               percentile:          ", str(round(query_percentile, 1))+"%")
-        print(                                             "                        acceptable deviation:      ", str(round(delta_lo, 2))+" to "+str(round(delta_hi, 2)),          "      percentile threshold:", str(round(percentile_thresh,1))+"%", end="\n\n")                    
+        print("raw delta RT:", round(syn_RT_results[0]-bio_RT_results[0],3), "      deviation from expected RT:", round(query_RT_pred_delta,3),                           "               percentile:          ", str(round(query_percentile, 1))+"%")
+        print(                                           "                          acceptable deviation:      ", str(round(delta_lo, 3))+" to "+str(round(delta_hi, 3)),          "      percentile threshold:", str(round(percentile_thresh,1))+"%", end="\n\n")                    
         print("###############################################################################################################################",end="\n\n")
         results_writer.writerow([])
         results_writer.writerow(["RT RESULTS (IN MINUTES) FOR "+sequence+"..."])
-        results_writer.writerow(["raw delta RT:", round(syn_RT_results[0]-bio_RT_results[0],1), "deviation from expected RT:", round(query_RT_pred_delta,2), "percentile:", str(round(query_percentile, 1))+"%"])
-        results_writer.writerow(["", "", "acceptable deviation:", str(round(delta_lo, 2))+" to "+str(round(delta_hi, 2)), "percentile threshold:", str(round(percentile_thresh,1))+"%"])
+        results_writer.writerow(["raw delta RT:", round(syn_RT_results[0]-bio_RT_results[0],3), "deviation from expected RT:", round(query_RT_pred_delta,3), "percentile:", str(round(query_percentile, 1))+"%"])
+        results_writer.writerow(["", "", "acceptable deviation:", str(round(delta_lo, 3))+" to "+str(round(delta_hi, 3)), "percentile threshold:", str(round(percentile_thresh,1))+"%"])
         
 #        sorted_RTs_bio = []
 #        for i in range(1, len(sorted_RTs)-1):
