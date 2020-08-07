@@ -106,7 +106,7 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,pro_mz_tol,leading_bio_scan,lea
                 syn_list.append([0,0,bio_list[p][1],bio_list[p][0]])
             #Check if you have any instances where when matching bio peaks to syn peaks the m/z got out of order.
         for r in range(0,len(syn_list)-1):
-            if (float(syn_list[r][3]) > float(syn_list[r+1][3])) and (float(syn_list[r+1][3]) != 0):
+            if (float(syn_list[r][3]) > float(syn_list[r+1][3])) and (float(syn_list[r+1][3]) != 0) and (float(syn_list[r+1][0]) != 0):
                 print("")
                 print("The following peaks from the bio file were switched during matching:")
                 print(syn_list[r][3])

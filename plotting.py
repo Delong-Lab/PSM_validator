@@ -44,16 +44,24 @@ def swarm_plot(y_list, series_name, y_highlight, highlight_series_name, title, y
     
 ##################################################################################################################################################################
 
-def regression_plot(x_values, y_values, series_name, query_x, query_y, query_name, title, x_label, y_label, regression, scientific, text, directory, filename):
+def regression_plot(x_values, y_values, series_name, query_x, query_y, query_name, title, x_label, y_label, regression, scientific, text, directory, filename, vline1, vline2):
 
     plt.figure(figsize=(5,5))
     plt.scatter(x_values,y_values, label = series_name, color="black")
     if query_x != "NA":
-        plt.scatter(query_x, query_y, label = query_name, color = "red", marker = "s", s = 60)
         y_max = max(max(y_values), query_y)
         y_min = min(min(y_values), query_y)
-        y_range = y_max - y_min
-        plt.ylim(y_min - 0.3*y_range, y_max + 0.1*y_range)
+    else:
+        y_max = max(y_values)
+        y_min = min(y_values)
+    y_range = y_max - y_min
+    y_bottom = y_min - 0.3*y_range
+    y_top = y_max + 0.1*y_range
+    if vline1 != "N" and vline2 != "N":
+        plt.vlines([vline1, vline2], [y_bottom, y_bottom], [y_top, y_top], linestyles="dotted", lw=2)
+    if query_x != "NA":
+        plt.scatter(query_x, query_y, label = query_name, color = "red", marker = "s", s = 60)
+        plt.ylim(y_bottom, y_top)
         plt.legend(loc="lower right", fontsize="large")
     plt.title(title, fontsize="xx-large", pad = 15)
     plt.xlabel(x_label, fontsize="x-large")

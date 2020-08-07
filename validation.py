@@ -55,7 +55,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     RTtol = settings[8]
     min_RT = settings[9]
     max_RT = settings[10]
-    acceptable_RTdev = settings[11]
+    manual_RTdev_thresh = settings[11]
     min_intstd = settings[12]
     percentile_thresh = settings[13]
     ion_type = settings[14]
@@ -118,7 +118,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     results_writer.writerow(["Window size for precursor extraction during RT determination (+/- minutes):", RTtol])
     results_writer.writerow(["Lower bound for RT analysis (minutes; based on biological sample run)", min_RT])
     results_writer.writerow(["Upper bound for RT analysis (minutes; based on biological sample run)", max_RT])
-    results_writer.writerow(["Manual threshold for deviation from predicted RT (+/- minutes)", acceptable_RTdev])
+    results_writer.writerow(["Manual threshold for deviation from predicted RT (+/- minutes)", manual_RTdev_thresh])
     results_writer.writerow(["Minimum number of internal standards for percentile rank calculation:", min_intstd])
     results_writer.writerow(["Minimum allowable percentile (%):", percentile_thresh])
     results_writer.writerow(["Fragment ion type ('"+ion_type+"' for CID or 'c/z' for ETD):", ion_type])
@@ -280,6 +280,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     query_PCCr = 0
     score_list=[]
     weighted_score_list=[]
+    PCC_dud_ISP = []
     
     for i in range(0,len(top_bio_scans)):
         if len(top_bio_scans[i])>1 and len(top_syn_scans[i])>1:
@@ -310,6 +311,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
                     return(processing_time, "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "TOO FEW PAIRS AVAILABLE FOR PEARSON ANALYSIS")
                 else:
                     PCC_r = "Too few pairs available for Pearson analysis"
+                    PCC_dud_ISP.append(top_bio_scans[i][0])
         elif len(top_bio_scans[i])<=1 and len(top_syn_scans[i])<=1:
             PCC_r = "Both the bio and syn run lack any spectra with correct precursor mass"
         elif len(top_bio_scans[i])<=1:
@@ -333,6 +335,8 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
             pairs=len(PCC_results[0])  
             if PCC_r >= min_PCC:
                 PCC_list.append(PCC_r)
+            else:
+                PCC_dud_ISP.append(top_bio_scans[i][0])
         else:
             PCC_r_round=PCC_r
         if i != (len(top_bio_scans)-1):
@@ -372,7 +376,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     #Generate plots
     
-    regression_plot(query_PCC_syn, query_PCC_bio, "NA", "NA", "NA", "NA", sequence_formatted+" correlation", "syn raw intensity", "bio raw intensity", "Y", "Y", "PCC="+str(round(query_PCCr, 3)), out_dir+"\\Figures", sequence_formatted+"_correlation")
+    regression_plot(query_PCC_syn, query_PCC_bio, "NA", "NA", "NA", "NA", sequence_formatted+" correlation", "syn raw intensity", "bio raw intensity", "Y", "Y", "PCC="+str(round(query_PCCr, 3)), out_dir+"\\Figures", sequence_formatted+"_correlation", "N", "N")
     swarm_plot(PCC_list, "standards", query_PCCr, sequence_formatted, "Pearson correlation coefficient (PCC)", "Pearson r", out_dir, sequence_formatted, "_PCC_dist.png", PCCr_threshold, 1, round(query_PCCr_percentile,1))   
     
     #PCC: Results
@@ -405,7 +409,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         if len(top_bio_scans[i]) == 1:
             bio_roughRT.append("Missing")
             bio_RTmzs.append("Missing")
-        elif top_bio_scans[i][3] == "Missing spectrum":
+        elif top_bio_scans[i][3] == "Missing spectrum" or (top_bio_scans[i][0] in PCC_dud_ISP):
             bio_roughRT.append("Missing")
             bio_RTmzs.append("Missing")
         else:
@@ -455,7 +459,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
             delta_RTs.append(syn_RT_results[0] - bio_RT_results[0])  
             if i != len(bio_RTmzs) - 1:
                 print(f" {top_bio_scans[i][0]:24}  {round(bio_RT_results[0],2):6}  {round(syn_RT_results[0],2):>8}  {round(syn_RT_results[0]-bio_RT_results[0],2):>17}") 
-                results_writer.writerow([top_bio_scans[i][0], round(bio_RT_results[0],1), round(syn_RT_results[0],1), round(syn_RT_results[0]-bio_RT_results[0],1)])
+                results_writer.writerow([top_bio_scans[i][0], round(bio_RT_results[0],2), round(syn_RT_results[0],2), round(syn_RT_results[0]-bio_RT_results[0],2)])
                 if verbose == "Y":
                     ISP_sequence = top_bio_scans[i][0]
                     ISP_sequence_formatted = ISP_sequence
@@ -473,8 +477,8 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     EIC(bio_EICx, bio_EICy, bio_RTs[len(bio_RTs)-1], "biological run", syn_EICx, syn_EICy, syn_RTs[len(syn_RTs)-1], "synthetic run", sequence_formatted, out_dir+"\\Figures", sequence_formatted + "_EIC.png")
     
-    regression_plot(bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], syn_RTs[len(bio_RTs)-1], sequence_formatted, "retention time (RT) in minutes", "RT in biological run", "RT in synthetic run", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_RT")
-    regression_plot(bio_RTs[0:len(bio_RTs)-1], delta_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], delta_RTs[len(bio_RTs)-1], sequence_formatted, "raw delta RT", "RT in biological run (minutes)", "syn RT - bio RT (minutes)", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_deltaRT")
+    regression_plot(bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], syn_RTs[len(bio_RTs)-1], sequence_formatted, "retention time (RT) in minutes", "RT in biological run", "RT in synthetic run", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_RT", min_RT, max_RT)
+    regression_plot(bio_RTs[0:len(bio_RTs)-1], delta_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], delta_RTs[len(bio_RTs)-1], sequence_formatted, "raw delta RT", "RT in biological run (minutes)", "syn RT - bio RT (minutes)", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_deltaRT", min_RT, max_RT)
     
     ref_RTs, test_RTs = [],[]
     for i in range(0, len(bio_RTs)-1):
@@ -497,10 +501,10 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         
         delta_lo, delta_hi, query_percentile = RT_percentile_rank(RT_pred_deltas, percentile_thresh/100, query_RT_pred_delta, out_dir, sequence_formatted)
         
-        if delta_lo > -acceptable_RTdev:
-            delta_lo = -acceptable_RTdev
-        if delta_hi < acceptable_RTdev:
-            delta_hi = acceptable_RTdev
+        if delta_lo > -manual_RTdev_thresh:
+            delta_lo = -manual_RTdev_thresh
+        if delta_hi < manual_RTdev_thresh:
+            delta_hi = manual_RTdev_thresh
 
         if len(RT_pred_deltas) < min_intstd:
             RT_outcome = "Too few internal standards"
