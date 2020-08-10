@@ -35,7 +35,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     settings_contents=csv.reader(settings_file, delimiter=",")
     row_num = 0
     for row in settings_contents:
-        if row_num == 16:
+        if row_num == 15:
             parameter = list(row)
             settings.append(parameter[2])
         elif row_num > 1:
@@ -55,10 +55,9 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     RTtol = settings[8]
     min_RT = settings[9]
     max_RT = settings[10]
-    manual_RTdev_thresh = settings[11]
-    min_intstd = settings[12]
-    percentile_thresh = settings[13]
-    ion_type = settings[14]
+    min_intstd = settings[11]
+    percentile_thresh = settings[12]
+    ion_type = settings[13]
     
     amino_acids = {}
     amino_acids_file = open(scriptdir+"\\parameters\\amino_acids.csv")
@@ -118,7 +117,6 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     results_writer.writerow(["Window size for precursor extraction during RT determination (+/- minutes):", RTtol])
     results_writer.writerow(["Lower bound for RT analysis (minutes; based on biological sample run)", min_RT])
     results_writer.writerow(["Upper bound for RT analysis (minutes; based on biological sample run)", max_RT])
-    results_writer.writerow(["Manual threshold for deviation from predicted RT (+/- minutes)", manual_RTdev_thresh])
     results_writer.writerow(["Minimum number of internal standards for percentile rank calculation:", min_intstd])
     results_writer.writerow(["Minimum allowable percentile (%):", percentile_thresh])
     results_writer.writerow(["Fragment ion type ('"+ion_type+"' for CID or 'c/z' for ETD):", ion_type])
@@ -500,11 +498,6 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         sorted_RTs, RT_pred_deltas, query_RT_pred_delta = RT_prediction(ref_RTs, test_RTs, query_ref_RT, query_test_RT)
         
         delta_lo, delta_hi, query_percentile = RT_percentile_rank(RT_pred_deltas, percentile_thresh/100, query_RT_pred_delta, out_dir, sequence_formatted)
-        
-        if delta_lo > -manual_RTdev_thresh:
-            delta_lo = -manual_RTdev_thresh
-        if delta_hi < manual_RTdev_thresh:
-            delta_hi = manual_RTdev_thresh
 
         if len(RT_pred_deltas) < min_intstd:
             RT_outcome = "Too few internal standards"
