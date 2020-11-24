@@ -279,30 +279,29 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biom
 
 def EIC(series1_x, series1_y, series1_RT, series1_label, series2_x, series2_y, series2_RT, series2_label, compoundID, out_dir, filename):
     
-    plt.figure(figsize=(8,5))
-    plt.plot(series1_x, series1_y, linewidth=2, color = "blue", label = series1_label)
-    plt.plot(series2_x, series2_y, linewidth=2, color = "red", label = series2_label)
-    fig_max = 1.25*max([max(series1_y), max(series2_y)])
-    plt.ylim(0,fig_max)
-    if max(series1_y) > 0.2*fig_max:
-        series1_text_ypos = 0.03*fig_max
-    else:
-        series1_text_ypos = 0.03*fig_max + max(series1_y)
-    if max(series2_y) > 0.2*fig_max:
-        series2_text_ypos = 0.03*fig_max
-    else:
-        series2_text_ypos = 0.03*fig_max + max(series2_y)
-    plt.vlines(x = series1_RT, ymin = 0, ymax = max(series1_y), linestyles = "dashed")
-    plt.vlines(x = series2_RT, ymin = 0, ymax = max(series2_y), linestyles = "dashed")
-    plt.text(series1_RT, series1_text_ypos, round(series1_RT, 1), fontsize = "x-large", horizontalalignment = "center", bbox = dict(facecolor = "white", edgecolor = "None"))
-    plt.text(series2_RT, series2_text_ypos, round(series2_RT, 1), fontsize = "x-large", horizontalalignment = "center", bbox = dict(facecolor = "white", edgecolor = "None"))
+    plt.figure(figsize=(8,5))  
+    fig,ax = plt.subplots()
+    
+    ax.plot(series1_x, series1_y, color="blue")
+    ax.set_xlabel("retention time (minutes)", fontsize="x-large")
+    ax.set_ylabel("raw intensity in "+series1_label,color="blue",fontsize="x-large")
+    plt.ticklabel_format(style="sci", scilimits=(0,0), axis="y")
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
-    plt.title("extracted ion chromatograms: " + compoundID, fontsize="xx-large", pad = 15)
-    plt.xlabel("retention time (minutes)", fontsize="x-large")
-    plt.ylabel("raw intensity", fontsize="x-large")
-    plt.legend(loc="upper right", fontsize="large")
+    plt.vlines(x = series1_RT, ymin = 0, ymax = max(series1_y), linestyles = "dashed")
+    plt.text(series1_RT, 0.03*max(series1_y), round(series1_RT, 1), color = "blue", fontsize = "x-large", horizontalalignment = "center", bbox = dict(facecolor = "white", edgecolor = "None"))
+    
+    ax2=ax.twinx()
+    ax2.plot(series2_x, series2_y,color="red")
+    ax2.set_ylabel("raw intensity in "+series2_label,color="red",fontsize="x-large")
     plt.ticklabel_format(style="sci", scilimits=(0,0), axis="y")
+    plt.xticks(fontsize="large")
+    plt.yticks(fontsize="large")
+    plt.vlines(x = series2_RT, ymin = 0, ymax = max(series2_y), linestyles = "dashed")
+    plt.text(series2_RT, 0.03*max(series2_y), round(series2_RT, 1), color = "red", fontsize = "x-large", horizontalalignment = "center", bbox = dict(facecolor = "white", edgecolor = "None"))
+    
+    plt.title("extracted ion chromatograms: " + compoundID, fontsize="xx-large", pad = 15)  
+
     os.chdir(out_dir)
     plt.savefig(filename, bbox_inches = "tight") 
     plt.close()

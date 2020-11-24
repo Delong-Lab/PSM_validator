@@ -1,6 +1,3 @@
 "Instructions: Use the full path for the directory with single slashes. Sample names should not include file extensions. Mass shifts can be any positive or negative number in decimal format. Sequence is case-sensitive; should use single-letter amino acid code; and must only contain characters included in the ""amino_acids.csv"" parameter file. For verbose option, enter ""Y"" for yes or ""N"" for no; for the specific analysis, entering yes will cause mirror plots and extracted ion chromatograms for each internal standard peptide (ISP) to be saved to the ""Figures"" subfolder for that analysis.",,,,,,
 directory,bio sample,syn sample,N-term mass shift,sequence,C-term mass shift,verbose
-C:\Users\wilest\Desktop\P-VIS\benchmarking detailed\200727_benchmarking_rpt1,UP_HeLa_rpt1,UP_rpt1,0,RINESLAQLK,0,Y
-C:\Users\wilest\Desktop\P-VIS\benchmarking detailed\200727_benchmarking_rpt1,UP_HeLa_rpt1,Spl_rpt1,0,KLPSTWAQLK,0,Y
-C:\Users\wilest\Desktop\P-VIS\benchmarking detailed\200727_benchmarking_rpt1,Spl_HeLa_rpt1,Spl_rpt1,0,KLPSTWAQLK,0,Y
-C:\Users\wilest\Desktop\P-VIS\benchmarking detailed\200727_benchmarking_rpt1,Spl_HeLa_rpt1,UP_rpt1,0,RINESLAQLK,0,Y
+C:\Users\wilest\Desktop\HIP11 paper\200923_synpep_rerun,AspN2,HIP11a_AspN_10uM,0,DLQVGQVELGGGPGAGSLQPLAL-EAE,0,Y
