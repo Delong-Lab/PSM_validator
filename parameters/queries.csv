@@ -1,3 +1,14 @@
-"Instructions: Use the full path for the directory with single slashes. Sample names should not include file extensions. Mass shifts can be any positive or negative number in decimal format. Sequence is case-sensitive; should use single-letter amino acid code; and must only contain characters included in the ""amino_acids.csv"" parameter file. For verbose option, enter ""Y"" for yes or ""N"" for no; for the specific analysis, entering yes will cause mirror plots and extracted ion chromatograms for each internal standard peptide (ISP) to be saved to the ""Figures"" subfolder for that analysis.",,,,,,
-directory,bio sample,syn sample,N-term mass shift,sequence,C-term mass shift,verbose
-C:\Users\wilest\Desktop\HIP11 paper\200923_synpep_rerun,AspN2,HIP11a_AspN_10uM,0,DLQVGQVELGGGPGAGSLQPLAL-EAE,0,Y
+"Instructions: Use the full path for the directory with single slashes. All data files must be placed in the same directory. Sample names should not include file extensions. Mass shifts can be any positive or negative number in decimal format. Sequence is case-sensitive; should use single-letter amino acid code; and must only contain characters included in the ""amino_acids.csv"" parameter file. For verbose option, enter ""Y"" for yes or ""N"" for no; for the specific analysis, entering yes will cause mirror plots and extracted ion chromatograms for each internal standard peptide (ISP) to be saved to the ""Figures"" subfolder for that analysis.",,,,,
+DIRECTORY:,C:\Users\wilest\Desktop\test\nano_rpt3,,,,
+bio sample,syn sample,N-term mass shift,sequence,C-term mass shift,verbose
+UP_HeLa_rpt3,UP_rpt3,0,RVFQDVAQK,0,N
+UP_HeLa_rpt3,UP_rpt3,0,RQTATQLLK,0,N
+UP_HeLa_rpt3,UP_rpt3,0,TKVGPNATY,0,Y
+UP_HeLa_rpt3,UP_rpt3,0,RVSTEVTLAVK,0,N
+UP_HeLa_rpt3,UP_rpt3,0,RINESLAQLK,0,N
+UP_HeLa_rpt3,UP_rpt3,0,VFIDKQTNL,0,N
+UP_HeLa_rpt3,UP_rpt3,0,RIIEETLALK,0,Y
+UP_HeLa_rpt3,UP_rpt3,0,FSKVEDMAELT,0,N
+UP_HeLa_rpt3,UP_rpt3,0,EIRHVLVTL,0,N
+UP_HeLa_rpt3,UP_rpt3,0,RLIDFLESGK,0,N
+UP_HeLa_rpt3,UP_rpt3,0,SINDKIIEL,0,N

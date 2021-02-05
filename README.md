@@ -36,6 +36,6 @@ Benchmarking data and associated PSM_validator result files have been deposited 
 
 ### License
 
-PSM_validator is freely available under the [Creative Commons Attribution 4.0 International Public License](https://creativecommons.org/licenses/by/4.0/legalcode). To provide acknowledgment, please cite the following manuscript: [citation with DOI hyperlink]. 
+PSM_validator is freely available under the [Creative Commons Attribution 4.0 International Public License](https://creativecommons.org/licenses/by/4.0/legalcode). To provide acknowledgment, please cite the following manuscript: [https://doi.org/10.1021/acs.jproteome.0c00355] (https://doi.org/10.1021/acs.jproteome.0c00355).
 
 
