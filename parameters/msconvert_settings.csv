@@ -1,6 +1,6 @@
 NOTE: See msconvert usage information (http://proteowizard.sourceforge.net/tools/msconvert.html) for parameter details. A space is required at the beginning of the filters entries below.,
 ,
-"Convert raw files? (If raw files need to be converted to MS1 and MGF, enter ""Y""; if files already converted, enter ""N"".)",Y
+"Convert raw files? (If raw files need to be converted to MS1 and MGF, enter ""Y""; if files already converted, enter ""N"".)",N
 ,
 Directory containing msconvert,C:\Program Files\ProteoWizard\ProteoWizard 3.0.18304.4713dde41
 ,

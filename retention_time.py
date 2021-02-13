@@ -1,4 +1,4 @@
-import csv
+from csv import reader
 
 ##################################################################################################################################################################
 
@@ -18,7 +18,7 @@ def MS1_RTfilter(RTtol, roughRT_list, MS1path):
             RTbounds[1].append(roughRT_list[i]+RTtol)
     
     MS1=open(MS1path)
-    MS1content=csv.reader(MS1, delimiter=" ")
+    MS1content=reader(MS1, delimiter=" ")
     MS1filtered=[]
     scan_start = 5
     collect = "no"

@@ -1,6 +1,6 @@
-import os
+from os import chdir
 import matplotlib.pyplot as plt
-import copy
+from copy import deepcopy
 
 ##################################################################################################################################################################
     
@@ -38,9 +38,9 @@ def swarm_plot(y_list, series_name, y_highlight, highlight_series_name, title, y
     plt.legend(loc="lower left", fontsize="large")   
     plt.title(title, fontsize="xx-large", pad = 15)
     plt.ylabel(y_axis_label, fontsize="x-large")
-    os.chdir(out_dir+"\\Figures")
+    chdir(out_dir+"\\Figures")
     plt.savefig(file_name + file_suffix, bbox_inches = "tight") 
-    plt.close()
+    plt.close(fig='all')
     
 ##################################################################################################################################################################
 
@@ -86,9 +86,9 @@ def regression_plot(x_values, y_values, series_name, query_x, query_y, query_nam
         plt.plot(fitx, fity, marker = "", color = "black", linestyle = "--")
     if text != "N":
         plt.text(max(x_values), min(y_values),text,fontsize="x-large", horizontalalignment="right")   
-    os.chdir(directory)
+    chdir(directory)
     plt.savefig(filename + ".png", bbox_inches = "tight")
-    plt.close()
+    plt.close(fig='all')
     
 ##################################################################################################################################################################
 
@@ -107,7 +107,7 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biom
         biox.append(float(bio_scan[i][0]))
         bioy.append(float(bio_scan[i][1]))
     bioy_max=max(bioy)
-    bioy_norm=copy.deepcopy(bioy)
+    bioy_norm=deepcopy(bioy)
     for i in range(len(bioy_norm)):
         bioy_norm[i]=bioy_norm[i]/bioy_max
     for i in range(len(biox)):
@@ -120,7 +120,7 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biom
         synx.append(float(syn_scan[i][0]))
         syny.append(float(syn_scan[i][1])) 
     syny_max=max(syny)
-    syny_norm=copy.deepcopy(syny)
+    syny_norm=deepcopy(syny)
     for i in range(len(syny_norm)):
         syny_norm[i]=-syny_norm[i]/syny_max
     for i in range(len(synx)):
@@ -269,9 +269,9 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biom
         plt.text(max(xlimits) + 0.025*xrange,-.55,f"synthetic\n(max={syny_max:.1E})", fontsize="x-large", horizontalalignment="right")        
     plt.text(max(xlimits) + 0.025*xrange,.8,f"biological\n(max={bioy_max:.1E})", fontsize="x-large", horizontalalignment="right")
     plt.xlim(min(xlimits) - 0.05*xrange, max(xlimits) + 0.05*xrange)
-    os.chdir(out_dir)
+    chdir(out_dir)
     plt.savefig(filename, bbox_inches = "tight")
-    plt.close()
+    plt.close(fig='all')
     
     return (sequence_map, biox, bioy_max, bioy_norm, synx, syny_max, syny_norm)
 
@@ -302,8 +302,8 @@ def EIC(series1_x, series1_y, series1_RT, series1_label, series2_x, series2_y, s
     
     plt.title("extracted ion chromatograms: " + compoundID, fontsize="xx-large", pad = 15)  
 
-    os.chdir(out_dir)
+    chdir(out_dir)
     plt.savefig(filename, bbox_inches = "tight") 
-    plt.close()
+    plt.close(fig='all')
     
 ##################################################################################################################################################################

@@ -1,4 +1,7 @@
-import os, csv, copy, math
+from os import makedirs
+from csv import reader, writer
+from copy import deepcopy
+from math import atanh
 from datetime import datetime
 from auxiliary import time_format, timer
 from scoring_prep import sequence_mass_calculator, LR_ion_calculator, pre_mz_filter
@@ -32,7 +35,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     settings = [] 
     settings_file = open(scriptdir+"\\parameters\\settings.csv")
-    settings_contents=csv.reader(settings_file, delimiter=",")
+    settings_contents=reader(settings_file, delimiter=",")
     row_num = 0
     for row in settings_contents:
         if row_num == 16:
@@ -62,7 +65,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     amino_acids = {}
     amino_acids_file = open(scriptdir+"\\parameters\\amino_acids.csv")
-    amino_acids_contents = csv.reader(amino_acids_file, delimiter = ",")
+    amino_acids_contents = reader(amino_acids_file, delimiter = ",")
     row_num = 0
     for row in amino_acids_contents:
         if row_num > 1:
@@ -73,7 +76,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     targets, N_term_shift_list, C_term_shift_list = [], [], []
     standards_file = open(scriptdir+"\\parameters\\standards.csv")
-    standards_contents=csv.reader(standards_file, delimiter=",")
+    standards_contents=reader(standards_file, delimiter=",")
     row_num = 0
     for row in standards_contents:
         if row_num > 1:
@@ -93,11 +96,11 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     targets[(len(targets)-1)].append(sequence_mass)
     targets[(len(targets)-1)].append("charge") #get rid of this once you update dataframes or leave it then have the search write it
     
-    os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted)
+    makedirs(directory+"\\"+timestamp+"_"+sequence_formatted)
     out_dir=directory+"\\"+timestamp+"_"+sequence_formatted  
     
     results=open(out_dir + "\\" + sequence_formatted + "_" + timestamp + "_results.csv","w",newline="")
-    results_writer=csv.writer(results) 
+    results_writer=writer(results) 
     results_writer.writerow(["date (yymmdd):", date, "time (hhmmss):", time])  
     results_writer.writerow([])
     results_writer.writerow(["MSCONVERT SETTINGS"])
@@ -163,14 +166,14 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     #Find and score spectra with the correct precursor m/z in the bio file.
             
     bio_MGF=open(bio_MGFpath)
-    bio_contents=csv.reader(bio_MGF, delimiter=" ")
+    bio_contents=reader(bio_MGF, delimiter=" ")
     
     bio_hit_list=pre_mz_filter(targets, pre_mz_tol, bio_contents)
     
     bio_MGF.close()
         
     syn_MGF=open(syn_MGFpath)
-    syn_contents=csv.reader(syn_MGF, delimiter=" ")
+    syn_contents=reader(syn_MGF, delimiter=" ")
     
     syn_hit_list=pre_mz_filter(targets, pre_mz_tol, syn_contents)
     
@@ -198,16 +201,16 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         processing_time = timer(datetime.now(), start_time)
         return(processing_time, "N/A", "N/A", "N/A", "N/A", "N/A", "N/A", "SYN RUN LACKS ANY SPECTRA WITH CORRECT PRECURSOR MASS")
     
-    os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Tables") 
-    os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures")
-    os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures\\normality") 
+    makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Tables") 
+    makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures")
+    makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures\\normality") 
     if verbose == "Y":
-        os.makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures\\ISPs")         
+        makedirs(directory+"\\"+timestamp+"_"+sequence_formatted+"\\Figures\\ISPs")         
     
     top_bio_hit=open(str(out_dir + "\\Tables\\" + sequence_formatted + "_bio_best_hit.mgf"),"w",newline="")
-    top_bio_hit_writer=csv.writer(top_bio_hit,delimiter=" ")
+    top_bio_hit_writer=writer(top_bio_hit,delimiter=" ")
     bio_hits=open(str(out_dir + "\\Tables\\" + sequence_formatted + "_bio_hits.csv"),"w",newline="")
-    bio_hits_writer=csv.writer(bio_hits)
+    bio_hits_writer=writer(bio_hits)
     
     print("SCORING SPECTRA FOR PEPTIDE OF INTEREST IN BIOLOGICAL SAMPLE...")
     results_writer.writerow(["QUERY RESULTS FOR BIOLOGICAL SAMPLE..."])
@@ -222,7 +225,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     results_writer.writerow([])
     if hyphen != -1:
-        results_writer.writerow(["% backbone coverage", "L pep backbone coverage", "R pep backbone coverage", "% "+ion_type+" intensity", "charge"])
+        results_writer.writerow(["L pep backbone coverage", "R pep backbone coverage", "% backbone coverage", "% "+ion_type+" intensity", "charge"])
     else:
         results_writer.writerow(["% backbone coverage", "% "+ion_type+" intensity", "charge"])    
     for i in range(0, len(bio_query_details)):
@@ -238,9 +241,9 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     #Find and score spectra with the correct precursor m/z in the syn file.
     
     top_syn_hit=open(str(out_dir + "\\Tables\\" + sequence_formatted + "_syn_best_hit.mgf"),"w",newline="")
-    top_syn_hit_writer=csv.writer(top_syn_hit,delimiter=" ")
+    top_syn_hit_writer=writer(top_syn_hit,delimiter=" ")
     syn_hits=open(str(out_dir + "\\Tables\\" + sequence_formatted + "_syn_hits.csv"),"w",newline="")
-    syn_hits_writer=csv.writer(syn_hits)
+    syn_hits_writer=writer(syn_hits)
     print("###############################################################################################################################")
     print()
     print("SCORING SPECTRA FOR PEPTIDE OF INTEREST IN SYNTHETIC SAMPLE...")
@@ -260,7 +263,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
 
     results_writer.writerow([])
     if hyphen != -1:
-        results_writer.writerow(["% backbone coverage", "L pep backbone coverage", "R pep backbone coverage", "% "+ion_type+" intensity", "charge"])
+        results_writer.writerow(["L pep backbone coverage", "R pep backbone coverage", "% backbone coverage", "% "+ion_type+" intensity", "charge"])
     else:
         results_writer.writerow(["% backbone coverage", "% "+ion_type+" intensity", "charge"])    
     for i in range(0, len(syn_query_details)):
@@ -290,8 +293,8 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     for i in range(0,len(top_bio_scans)):
         if len(top_bio_scans[i])>1 and len(top_syn_scans[i])>1:
-            leading_bio_scan = copy.deepcopy(top_bio_scans[i][3])
-            leading_syn_scan = copy.deepcopy(top_syn_scans[i][3])
+            leading_bio_scan = deepcopy(top_bio_scans[i][3])
+            leading_syn_scan = deepcopy(top_syn_scans[i][3])
             PCC_results = PCC_calculator(abund_thresh,PCC_abund_thresh,pro_mz_tol,leading_bio_scan,leading_syn_scan)
             PCC_r = PCC_results[1]
             biomin, synmin = PCC_results[3], PCC_results[4]
@@ -357,7 +360,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
                 print(f" {top_bio_scans[i][0]:24}  {PCC_r_round:69}")
                 results_writer.writerow([top_bio_scans[i][0], PCC_r_round])                
             else:
-                Fisherz = math.atanh(PCC_r_round)
+                Fisherz = atanh(PCC_r_round)
                 print(f" {top_bio_scans[i][0]:24}  {round(top_bio_scans[i][1]):>23}  {round(top_bio_scans[i][2]):>21}  {PCC_r_round:>11}  {round(Fisherz,3):>12}  {pairs:>12}  {syn_charge_list[i]:>3}") 
                 results_writer.writerow([top_bio_scans[i][0], round(top_bio_scans[i][1]), round(top_bio_scans[i][2]), PCC_r_round, round(Fisherz,3), pairs, syn_charge_list[i]])
                 score_list.append(top_bio_scans[i][1])
@@ -400,7 +403,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     results_writer.writerow(["PCC threshold:", round(PCCr_threshold,3), "percentile threshold:", str(round(percentile_thresh,1))+"%"])
                              
     PCC_prep=open(str(out_dir + "\\Tables\\" + sequence_formatted + "_PCC_prep.csv"),"w",newline="")
-    PCC_prep_writer=csv.writer(PCC_prep)
+    PCC_prep_writer=writer(PCC_prep)
     PCC_prep_writer.writerow(["Pearson_r", round(query_PCCr, 3), "peak_pairs", len(syn_list_filtered)])
     PCC_prep_writer.writerow([])
     PCC_prep_writer.writerow(["syn_m/z", "syn_abund", "bio_abund", "bio_m/z"])

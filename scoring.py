@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 
 ##################################################################################################################################################################
 
@@ -118,8 +118,8 @@ def LR_score(abund_thresh,pro_mz_tol,min_score,min_weighted_score,hits,hits_writ
                             hits_writer.writerow(["bond #", "c+", "c++", "z+", "z++", "matches", "", "c+", "c++", "z+", "z++", "", "c+", "c++", "z+", "z++"])                                                   
                         hits_writer.writerows(R_ions)
                         hits_writer.writerow([])
-                        L_score = str(L_total)+"/"+str(L_bonds)
-                        R_score = str(R_total)+"/"+str(R_bonds)
+                        L_score = "'"+str(L_total)+"/"+str(L_bonds)
+                        R_score = "'"+str(R_total)+"/"+str(R_bonds)
                         hits_writer.writerow(["L pep backbone coverage", "'"+L_score, "R pep backbone coverage", "'"+R_score, "% backbone coverage =", round(score,2), "% "+ion_type+" intensity =", round(weighted_score,2)])
                         print(f"{L_score:>24}   {R_score:>24}  {round(score):>21}  {round(weighted_score):>17}  {obs_z:>3}")
                         query_details.append([L_score, R_score, score, weighted_score, obs_z])
@@ -138,18 +138,18 @@ def LR_score(abund_thresh,pro_mz_tol,min_score,min_weighted_score,hits,hits_writ
                         leading_score=score
                         leading_weighted_score=weighted_score
                         chosen_L_score, chosen_R_score = L_score, R_score
-                        leading_scan=copy.deepcopy(hits[i][j])
-                        leading_L_ions=copy.deepcopy(L_ions) 
-                        leading_R_ions=copy.deepcopy(R_ions)
+                        leading_scan=deepcopy(hits[i][j])
+                        leading_L_ions=deepcopy(L_ions) 
+                        leading_R_ions=deepcopy(R_ions)
                         leading_charge = obs_z
                     elif score==leading_score and score >= min_score and weighted_score >= min_weighted_score:
                         if weighted_score > leading_weighted_score:
                             leading_score=score
                             leading_weighted_score=weighted_score
                             chosen_L_score, chosen_R_score = L_score, R_score
-                            leading_scan=copy.deepcopy(hits[i][j])
-                            leading_L_ions=copy.deepcopy(L_ions) 
-                            leading_R_ions=copy.deepcopy(R_ions)
+                            leading_scan=deepcopy(hits[i][j])
+                            leading_L_ions=deepcopy(L_ions) 
+                            leading_R_ions=deepcopy(R_ions)
                             leading_charge = obs_z
                 for p in range (len(L_ions)):
                     L_ions[p][5:]=[0,"","","","","","","","","",""]

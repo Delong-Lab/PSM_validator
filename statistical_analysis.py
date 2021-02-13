@@ -1,5 +1,9 @@
-import os, math, statistics
-import scipy.stats as scistat
+from os import chdir
+from math import atanh, sqrt, tanh
+from statistics import stdev
+from statistics import mean as statmean
+from scipy.stats import norm, normaltest
+from scipy.stats import t as stat_t
 import matplotlib.pyplot as plt
 
 ##################################################################################################################################################################
@@ -17,19 +21,19 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r, out_dir, file_name):
     for i in range(0, len(r_list)):
             #The traditional equation is z = 0.5 * (math.log(1+data[i]) - math.log(1-data[i])), but it can also be determined by calculating the inverse
             #hyperbolic tangent (which makes for cleaner code). I confirmed that both approaches give the same answer.
-        z = math.atanh(r_list[i])
+        z = atanh(r_list[i])
         z_list.append(z)
         
     #Calculate summary statistics
     
-    mean_z = statistics.mean(z_list)
-    std_z = statistics.stdev(z_list)
+    mean_z = statmean(z_list)
+    std_z = stdev(z_list)
     n_z = len(z_list)
 
     #Test normality
     
 #    alpha = 0.05
-    normality = scistat.normaltest(z_list)
+    normality = normaltest(z_list)
     normality_p = float(normality[1])
 #    if normality_p >= alpha:
 #        normality_check = "passed normality test"
@@ -43,31 +47,31 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r, out_dir, file_name):
     x = [min(z_list)]
     for i in range(1,101):
         x.append(x[i-1]+step)
-    plt.plot(x, scistat.norm(mean_z,std_z).pdf(x))
+    plt.plot(x, norm(mean_z,std_z).pdf(x))
     plt.xlabel("Fisher z", fontsize="x-large")
     plt.ylabel("probability density", fontsize="x-large")
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
     plt.title("normality of ISP PCCs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
-    os.chdir(out_dir+"\\Figures\\normality")
+    chdir(out_dir+"\\Figures\\normality")
     plt.savefig(file_name + "_PCC_normality", bbox_inches = "tight") 
-    plt.close()
+    plt.close(fig='all')
     
     #Calculate t-statistic for threshold
     
-    t_thresh = scistat.t.ppf(percentile_thresh, n_z - 1) #One-tailed percentile approach; percentile_thresh = q
+    t_thresh = stat_t.ppf(percentile_thresh, n_z - 1) #One-tailed percentile approach; percentile_thresh = q
     
-    z_thresh = mean_z + t_thresh*std_z*math.sqrt(1 + 1/n_z)
+    z_thresh = mean_z + t_thresh*std_z*sqrt(1 + 1/n_z)
     
     #Back transform z_thresh to obtain minimum Pearson r
     
-    r_thresh = math.tanh(z_thresh)
+    r_thresh = tanh(z_thresh)
         
     #Calculate percentile for query_r
     
-    query_z = math.atanh(query_r)
-    query_t = (query_z - mean_z)/(std_z*math.sqrt(1 + 1/n_z))
-    query_percentile = scistat.t.cdf(query_t, n_z - 1)*100
+    query_z = atanh(query_r)
+    query_t = (query_z - mean_z)/(std_z*sqrt(1 + 1/n_z))
+    query_percentile = stat_t.cdf(query_t, n_z - 1)*100
 
     return(r_thresh, query_percentile)
     #r_lo and r_hi define the boundaries for the prediction interval
@@ -78,14 +82,14 @@ def RT_percentile_rank(RT_pred_deltas, percentile_thresh, query_RT_pred_delta, o
     
     #Calculate summary statistics
     
-    mean = statistics.mean(RT_pred_deltas)
-    std = statistics.stdev(RT_pred_deltas)
+    mean = statmean(RT_pred_deltas)
+    std = stdev(RT_pred_deltas)
     n = len(RT_pred_deltas)
 
     #Test normality
     
 #    alpha = 0.05
-    normality = scistat.normaltest(RT_pred_deltas)
+    normality = normaltest(RT_pred_deltas)
     normality_p = float(normality[1])
 #    if normality_p >= alpha:
 #        normality_check = "passed normality test"
@@ -99,27 +103,27 @@ def RT_percentile_rank(RT_pred_deltas, percentile_thresh, query_RT_pred_delta, o
     x = [min(RT_pred_deltas)]
     for i in range(1,101):
         x.append(x[i-1]+step)
-    plt.plot(x, scistat.norm(mean,std).pdf(x))
+    plt.plot(x, norm(mean,std).pdf(x))
     plt.xlabel("expected RT - syn RT (minutes)", fontsize="x-large")
     plt.ylabel("probability density", fontsize="x-large")
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
     plt.title("normality of ISP delta RTs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
-    os.chdir(out_dir+"\\Figures\\normality")
+    chdir(out_dir+"\\Figures\\normality")
     plt.savefig(file_name + "_deltaRT_normality", bbox_inches = "tight") 
-    plt.close()
+    plt.close(fig='all')
     
     #Calculate t-statistic and prediction interval boundaries
     
-    t = scistat.t.ppf(percentile_thresh/2, n - 1) #This is for two-tailed calculation. PPF: percent point function (quantile function).
+    t = stat_t.ppf(percentile_thresh/2, n - 1) #This is for two-tailed calculation. PPF: percent point function (quantile function).
     
-    delta_lo = mean + t*std*math.sqrt(1 + 1/n) 
-    delta_hi = mean - t*std*math.sqrt(1 + 1/n) 
+    delta_lo = mean + t*std*sqrt(1 + 1/n) 
+    delta_hi = mean - t*std*sqrt(1 + 1/n) 
 
     #Calculate percentile rank for query_RT_pred_delta
     
-    query_t = (query_RT_pred_delta - mean)/(std*math.sqrt(1 + 1/n))
-    query_percentile = scistat.t.cdf(-abs(query_t), n - 1)*100*2 #Multiply by two to provide two-tailed value
+    query_t = (query_RT_pred_delta - mean)/(std*sqrt(1 + 1/n))
+    query_percentile = stat_t.cdf(-abs(query_t), n - 1)*100*2 #Multiply by two to provide two-tailed value
 
     return(delta_lo, delta_hi, query_percentile)
 

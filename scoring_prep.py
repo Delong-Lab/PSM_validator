@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 
 ##################################################################################################################################################################
 
@@ -187,7 +187,7 @@ def LR_ion_calculator(sequence, amino_acids, N_term_shift, C_term_shift, ion_typ
 
 def pre_mz_filter(targets, pre_mz_tol, contents):
 
-    hits=copy.deepcopy(targets)
+    hits=deepcopy(targets)
     scan_num=0
     for row in contents:
         if "BEGIN" in row:

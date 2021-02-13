@@ -1,4 +1,4 @@
-import math
+from math import sqrt
 
 ##################################################################################################################################################################
 
@@ -155,7 +155,7 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,pro_mz_tol,leading_bio_scan,lea
         for i in range(0, len(syn_list_filtered)):
             sum_bio_sq=sum_bio_sq+(float(syn_list_filtered[i][2])-filtered_bio_avg)**2
             sum_syn_sq=sum_syn_sq+(float(syn_list_filtered[i][1])-filtered_syn_avg)**2
-        PCC_r=r_numerator/(math.sqrt(sum_bio_sq)*math.sqrt(sum_syn_sq))
+        PCC_r=r_numerator/(sqrt(sum_bio_sq)*sqrt(sum_syn_sq))
 
     return(syn_list_filtered,PCC_r,warning,biomin,synmin)
     

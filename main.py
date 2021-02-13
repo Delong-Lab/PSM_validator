@@ -1,10 +1,8 @@
-import os, csv
+from os import path, system
+from csv import reader, writer
 from datetime import datetime
 from auxiliary import time_format
 from validation import validation
-
-scriptpath = os.path.realpath(__file__)
-scriptdir = os.path.dirname(scriptpath)
 
 ##################################################################################################################################################################
 
@@ -14,13 +12,16 @@ print("#     PSM_VALIDATOR     #     PSM_VALIDATOR     #     PSM_VALIDATOR     #
 print("###############################################################################################################################")
 print()
 
+scriptpath = path.realpath(__file__)
+scriptdir = path.dirname(scriptpath)
+
 now = datetime.now()
 now = time_format(now)
 date, time = now[0], now[1]
 timestamp = date + "_" + time  
        
 queries_file = open(scriptdir+"\\parameters\\queries.csv")
-queries_contents = csv.reader(queries_file, delimiter = ",")
+queries_contents = reader(queries_file, delimiter = ",")
 row_num = 0
 for row in queries_contents:
     if row_num == 1:
@@ -28,7 +29,7 @@ for row in queries_contents:
         directory = directory_row[1]
          
         msconvert_settings_file = open(scriptdir+"\\parameters\\msconvert_settings.csv")
-        msconvert_settings_contents=csv.reader(msconvert_settings_file, delimiter=",")
+        msconvert_settings_contents=reader(msconvert_settings_file, delimiter=",")
         line = 0
         for row in msconvert_settings_contents:
             if line == 2:
@@ -59,8 +60,8 @@ for row in queries_contents:
             MGF_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + MGF_filetype + ' --mgf -o ' + directory + MGF_filters
             command1 = "cmd /c " + MS1_settings
             command2 = "cmd /c " + MGF_settings
-            os.system(command1)
-            os.system(command2)
+            system(command1)
+            system(command2)
             msconvert_settings = [[MS1_settings], [MGF_settings]] 
         else: 
             msconvert_settings = [["File conversion not performed"]]
@@ -70,7 +71,7 @@ for row in queries_contents:
         if analysis[0] != "":
             if row_num == 3:
                 batch_results=open(directory + "\\PSM_validator_" + timestamp + "_results.csv","w",newline="")
-                batch_results_writer=csv.writer(batch_results) 
+                batch_results_writer=writer(batch_results) 
                 batch_results_writer.writerow(["DIRECTORY:", directory])
                 batch_results_writer.writerow(["bio sample", "syn sample", "N-term mass shift", "sequence", "C-term mass shift", "verbose", "processing time (min:sec)", "PCC", "PCC percentile rank", "deviation from expected RT (minutes)", "RT percentile rank", "PCC outcome", "RT outcome", "WARNINGS"])
             biological, synthetic = analysis[0], analysis[1]
