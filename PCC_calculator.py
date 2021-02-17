@@ -12,6 +12,8 @@ def PCC_calculator(abund_thresh,PCC_abund_thresh,pro_mz_tol,leading_bio_scan,lea
     PCC: Filter noise from peak lists (based on fixed, user-defined threshold. Could use alternative approaches like avg + 2SD)
     '''
 
+    pro_mz_tol = 2*pro_mz_tol #This value is doubled to account for the possibility that one run could be -pro_mz_tol from predicted and the other could be +pro_mz_tol from predicted 
+    
     warning = "none"
     syn_list_filtered = []
     biomin, synmin = 0, 0

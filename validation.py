@@ -13,7 +13,7 @@ from statistical_analysis import PCC_percentile_rank, RT_percentile_rank
 
 ##################################################################################################################################################################
 
-def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic, verbose, msconvert_settings):
+def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic, verbose, msconvert_settings, version):
 
     now = datetime.now()
     now = time_format(now)
@@ -101,6 +101,8 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     results=open(out_dir + "\\" + sequence_formatted + "_" + timestamp + "_results.csv","w",newline="")
     results_writer=writer(results) 
+    results_writer.writerow([version])  
+    results_writer.writerow([])
     results_writer.writerow(["date (yymmdd):", date, "time (hhmmss):", time])  
     results_writer.writerow([])
     results_writer.writerow(["MSCONVERT SETTINGS"])

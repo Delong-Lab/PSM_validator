@@ -1,7 +1,12 @@
-from os import path, system
+version = "PSM_validator_v1p6"
+
+##################################################################################################################################################################
+
+from os import path, system, listdir
 from csv import reader, writer
 from datetime import datetime
 from auxiliary import time_format
+from refinement import precursor_refine, spectrum_merge
 from validation import validation
 
 ##################################################################################################################################################################
@@ -65,7 +70,15 @@ for row in queries_contents:
             msconvert_settings = [[MS1_settings], [MGF_settings]] 
         else: 
             msconvert_settings = [["File conversion not performed"]]
-        
+
+        files = listdir(directory)
+        for i in range(0, len(files)):
+            if ".mgf" in files[i]:
+                sample_mgf = directory + "\\" + files[i]
+                sample_name = files[i][0:len(files[i])-4]
+                sample_ms1 = directory + "\\" + sample_name + ".ms1"
+                precursor_refine(sample_ms1, sample_mgf)
+            
     if row_num > 2:   
         analysis = list(row)
         if analysis[0] != "":
@@ -78,7 +91,7 @@ for row in queries_contents:
             sequence = analysis[3]
             N_term_shift, C_term_shift = float(analysis[2]), float(analysis[4])
             verbose = analysis[5]
-            results = validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic, verbose, msconvert_settings)
+            results = validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic, verbose, msconvert_settings, version)
             output = analysis + list(results)
             batch_results_writer.writerow(output)
     row_num = row_num + 1

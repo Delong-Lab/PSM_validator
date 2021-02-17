@@ -1,6 +1,6 @@
 NOTE: See msconvert usage information (http://proteowizard.sourceforge.net/tools/msconvert.html) for parameter details. A space is required at the beginning of the filters entries below.,
 ,
-"Convert raw files? (If raw files need to be converted to MS1 and MGF, enter ""Y""; if files already converted, enter ""N"".)",N
+"Convert raw files? (If raw files need to be converted to MS1 and MGF, enter ""Y""; if files already converted, enter ""N"".)",Y
 ,
 Directory containing msconvert,C:\Program Files\ProteoWizard\ProteoWizard 3.0.18304.4713dde41
 ,
@@ -10,7 +10,7 @@ filters," --filter ""scanTime [600,6000]"" --filter ""mzWindow [300,1400]"" --fi
 ,
 MGF PARAMETERS,
 input file type,.d
-filters," --filter ""scanTime [600,6000]""  --filter ""precursorRefine"" --filter ""mzWindow [50,1700]"" --filter ""MS2Deisotope hi_res mzTol=0.01"" --filter ""threshold bpi-relative 0.04 most-intense"""
+filters," --filter ""scanTime [600,6000]""  --filter ""mzWindow [50,1700]"" --filter ""MS2Deisotope hi_res mzTol=0.01"" --filter ""threshold bpi-relative 0.04 most-intense"""
 ,
 **IMPORTANT NOTE: A SPACE IS REQUIRED AT THE BEGINNING OF THE FILTER ENTRIES ABOVE!**,
 "**IMPORTANT NOTE: CHANGING MSCONVERT SETTINGS CAN DRAMATICALLY IMPACT THE TIME IT TAKES TO PERFORM PSM_VALIDATOR ANALYSES. FOR EXAMPLE, WE HAVE SEEN A ROUGHLY 10X INCREASE IN THE SPEED OF PSM_VALIDATOR ANALYSIS (WITH NO OBSERVABLE LOSS IN PERFORMANCE) WHEN THE MSCONVERT ""THRESHOLD"" FILTER IS USED TO REMOVE LOW-ABUNDANCE PEAKS FROM THE DATA. ",
