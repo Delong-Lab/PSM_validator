@@ -2,7 +2,7 @@ version = "PSM_validator_v1p6"
 
 ##################################################################################################################################################################
 
-from os import path, system, listdir
+from os import path, system, listdir, remove
 from csv import reader, writer
 from datetime import datetime
 from auxiliary import time_format
@@ -24,6 +24,36 @@ now = datetime.now()
 now = time_format(now)
 date, time = now[0], now[1]
 timestamp = date + "_" + time  
+
+settings = [] 
+settings_file = open(scriptdir+"\\parameters\\settings.csv")
+settings_contents=reader(settings_file, delimiter=",")
+row_num = 0
+for row in settings_contents:
+    if row_num == 16:
+        parameter = list(row)
+        settings.append(parameter[2])
+    elif row_num > 1:
+        parameter = list(row)
+        settings.append(float(parameter[2]))
+    row_num = row_num + 1
+settings_file.close()
+
+pre_mz_tol = settings[0]
+pro_mz_tol = settings[1]
+abund_thresh = settings[2]
+PCC_abund_thresh = settings[3]
+min_score = settings[4]
+min_weighted_score = settings[5]
+min_pairs_PCC = settings[6]    
+min_PCC = settings[7]    
+RTtol = settings[8]
+min_RT = settings[9]
+max_RT = settings[10]
+manual_RTdev_thresh = settings[11]
+min_intstd = settings[12]
+percentile_thresh = settings[13]
+ion_type = settings[14]
        
 queries_file = open(scriptdir+"\\parameters\\queries.csv")
 queries_contents = reader(queries_file, delimiter = ",")
@@ -59,7 +89,13 @@ for row in queries_contents:
         msconvert_settings_file.close()
         
         if convert == "Y":
-            print("Converting files...")
+            
+            files = listdir(directory)
+            for i in range(0, len(files)):
+                if ".mgf" in files[i] or ".ms1" in files[i]:
+                    remove(directory + "\\" + files[i])
+                    
+            print("Converting/filtering data files...")
             print()
             MS1_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + MS1_filetype + ' --ms1 -o ' + directory + MS1_filters
             MGF_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + MGF_filetype + ' --mgf -o ' + directory + MGF_filters
@@ -67,17 +103,28 @@ for row in queries_contents:
             command2 = "cmd /c " + MGF_settings
             system(command1)
             system(command2)
-            msconvert_settings = [[MS1_settings], [MGF_settings]] 
+            msconvert_settings = [[MS1_settings], [MGF_settings], ["Precursor refinement and MS2 spectrum merging performed"]] 
+            
+            print("Performing precursor refinement...")
+            print()
+            files = listdir(directory)
+            for i in range(0, len(files)):
+                if ".mgf" in files[i]:
+                    sample_mgf = directory + "\\" + files[i]
+                    sample_name = files[i][0:len(files[i])-4]
+                    sample_ms1 = directory + "\\" + sample_name + ".ms1"
+                    precursor_refine(sample_ms1, sample_mgf)
+                    
+            print("Merging MS2 spectra...")
+            print()
+            files = listdir(directory)
+            for i in range(0, len(files)):
+                if "_precursors_refined.mgf" in files[i]:
+                    refined_mgf = directory + "\\" + files[i]
+                    spectrum_merge(refined_mgf, RTtol, pre_mz_tol, pro_mz_tol)
+                    
         else: 
-            msconvert_settings = [["File conversion not performed"]]
-
-        files = listdir(directory)
-        for i in range(0, len(files)):
-            if ".mgf" in files[i]:
-                sample_mgf = directory + "\\" + files[i]
-                sample_name = files[i][0:len(files[i])-4]
-                sample_ms1 = directory + "\\" + sample_name + ".ms1"
-                precursor_refine(sample_ms1, sample_mgf)
+            msconvert_settings = [["File conversion/filtering, precursor refinement, and MS2 spectrum merging not performed"]]
             
     if row_num > 2:   
         analysis = list(row)

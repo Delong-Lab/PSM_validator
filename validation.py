@@ -101,7 +101,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     results=open(out_dir + "\\" + sequence_formatted + "_" + timestamp + "_results.csv","w",newline="")
     results_writer=writer(results) 
-    results_writer.writerow([version])  
+    results_writer.writerow(["date (yymmdd):", date, "time (hhmmss):", time])  
     results_writer.writerow([])
     results_writer.writerow(["date (yymmdd):", date, "time (hhmmss):", time])  
     results_writer.writerow([])
@@ -301,7 +301,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
             PCC_r = PCC_results[1]
             biomin, synmin = PCC_results[3], PCC_results[4]
             if PCC_r != "Missing spectrum" and i == (len(top_bio_scans)-1):
-                mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biomin, synmin, top_bio_scans[len(top_bio_scans)-1][3], top_bio_scans[len(top_bio_scans)-1][4], top_bio_scans[len(top_bio_scans)-1][5], top_syn_scans[len(top_syn_scans)-1][3], top_syn_scans[len(top_syn_scans)-1][4], top_syn_scans[len(top_syn_scans)-1][5], ion_type, out_dir+"\\Figures", sequence_formatted + "_mirror.png")    
+                mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biomin, synmin, top_bio_scans[len(top_bio_scans)-1][3], top_bio_scans[len(top_bio_scans)-1][4], top_bio_scans[len(top_bio_scans)-1][5], top_syn_scans[len(top_syn_scans)-1][3], top_syn_scans[len(top_syn_scans)-1][4], top_syn_scans[len(top_syn_scans)-1][5], ion_type, out_dir+"\\Figures\\", sequence_formatted + "_mirror.png")    
             if verbose == "Y" and PCC_r != "Missing spectrum" and i != (len(top_bio_scans)-1):
                 ISP_sequence = top_bio_scans[i][0]
                 ISP_sequence_formatted = ISP_sequence
@@ -309,7 +309,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
                     ISP_sequence_formatted = "("+str(round(N_term_shift_list[i],2))+")"+ISP_sequence_formatted 
                 if C_term_shift_list[i] != 0:
                     ISP_sequence_formatted = ISP_sequence_formatted+"("+str(round(C_term_shift_list[i],2))+")"
-                mirror_plot(ISP_sequence.find("-"), ISP_sequence, N_term_shift_list[i], C_term_shift_list[i], abund_thresh, biomin, synmin, top_bio_scans[i][3], top_bio_scans[i][4], top_bio_scans[i][5], top_syn_scans[i][3], top_syn_scans[i][4], top_syn_scans[i][5], ion_type, out_dir+"\\Figures\\ISPs", ISP_sequence_formatted + "_mirror.png")                    
+                mirror_plot(ISP_sequence.find("-"), ISP_sequence, N_term_shift_list[i], C_term_shift_list[i], abund_thresh, biomin, synmin, top_bio_scans[i][3], top_bio_scans[i][4], top_bio_scans[i][5], top_syn_scans[i][3], top_syn_scans[i][4], top_syn_scans[i][5], ion_type, out_dir+"\\Figures\\ISPs\\", ISP_sequence_formatted + "_mirror.png")                    
             if PCC_r != "Missing spectrum" and len(PCC_results[0]) < min_pairs_PCC:
                 if i == (len(top_bio_scans)-1):
                     print("")
@@ -387,8 +387,8 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     
     #Generate plots
     
-    regression_plot(query_PCC_syn, query_PCC_bio, "NA", "NA", "NA", "NA", sequence_formatted+" correlation", "syn raw intensity", "bio raw intensity", "Y", "Y", "PCC="+str(round(query_PCCr, 3)), out_dir+"\\Figures", sequence_formatted+"_correlation", "N", "N")
-    swarm_plot(PCC_list, "standards", query_PCCr, sequence_formatted, "Pearson correlation coefficient (PCC)", "Pearson r", out_dir, sequence_formatted, "_PCC_dist.png", PCCr_threshold, 1, round(query_PCCr_percentile,1))   
+    regression_plot(query_PCC_syn, query_PCC_bio, "NA", "NA", "NA", "NA", sequence_formatted+" correlation", "syn raw intensity", "bio raw intensity", "Y", "Y", "PCC="+str(round(query_PCCr, 3)), out_dir+"\\Figures\\", sequence_formatted+"_correlation", "N", "N")
+    swarm_plot(PCC_list, "standards", query_PCCr, sequence_formatted, "Pearson correlation coefficient (PCC)", "Pearson r", out_dir+"\\Figures\\", sequence_formatted, "_PCC_dist.png", PCCr_threshold, 1, round(query_PCCr_percentile,1))   
     
     #PCC: Results
     
@@ -478,7 +478,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
                         ISP_sequence_formatted = "("+str(round(N_term_shift_list[i],2))+")"+ISP_sequence_formatted 
                     if C_term_shift_list[i] != 0:
                         ISP_sequence_formatted = ISP_sequence_formatted+"("+str(round(C_term_shift_list[i],2))+")"
-                    EIC(bio_RT_results[1], bio_RT_results[2], bio_RT_results[0], "biological run", syn_RT_results[1], syn_RT_results[2], syn_RT_results[0], "synthetic run", ISP_sequence_formatted, out_dir+"\\Figures\\ISPs", ISP_sequence_formatted + "_EIC.png")
+                    EIC(bio_RT_results[1], bio_RT_results[2], bio_RT_results[0], "biological run", syn_RT_results[1], syn_RT_results[2], syn_RT_results[0], "synthetic run", ISP_sequence_formatted, out_dir+"\\Figures\\ISPs\\", ISP_sequence_formatted + "_EIC.png")
 
             else:
                 bio_EICx = bio_RT_results[1]
@@ -486,10 +486,10 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
                 syn_EICx = syn_RT_results[1]
                 syn_EICy = syn_RT_results[2]
     
-    EIC(bio_EICx, bio_EICy, bio_RTs[len(bio_RTs)-1], "biological run", syn_EICx, syn_EICy, syn_RTs[len(syn_RTs)-1], "synthetic run", sequence_formatted, out_dir+"\\Figures", sequence_formatted + "_EIC.png")
+    EIC(bio_EICx, bio_EICy, bio_RTs[len(bio_RTs)-1], "biological run", syn_EICx, syn_EICy, syn_RTs[len(syn_RTs)-1], "synthetic run", sequence_formatted, out_dir+"\\Figures\\", sequence_formatted + "_EIC.png")
     
-    regression_plot(bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], syn_RTs[len(bio_RTs)-1], sequence_formatted, "retention time (RT) in minutes", "RT in biological run", "RT in synthetic run", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_RT", min_RT, max_RT)
-    regression_plot(bio_RTs[0:len(bio_RTs)-1], delta_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], delta_RTs[len(bio_RTs)-1], sequence_formatted, "raw delta RT", "RT in biological run (minutes)", "syn RT - bio RT (minutes)", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_deltaRT", min_RT, max_RT)
+    regression_plot(bio_RTs[0:len(bio_RTs)-1], syn_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], syn_RTs[len(bio_RTs)-1], sequence_formatted, "retention time (RT) in minutes", "RT in biological run", "RT in synthetic run", "N", "N", "N", out_dir+"\\Figures\\", sequence_formatted+"_RT", min_RT, max_RT)
+    regression_plot(bio_RTs[0:len(bio_RTs)-1], delta_RTs[0:len(bio_RTs)-1], "standards", bio_RTs[len(bio_RTs)-1], delta_RTs[len(bio_RTs)-1], sequence_formatted, "raw delta RT", "RT in biological run (minutes)", "syn RT - bio RT (minutes)", "N", "N", "N", out_dir+"\\Figures\\", sequence_formatted+"_deltaRT", min_RT, max_RT)
     
     ref_RTs, test_RTs = [],[]
     for i in range(0, len(bio_RTs)-1):
@@ -540,7 +540,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
 #            sorted_RTs_bio.append(sorted_RTs[i][0])
 #        regression_plot(sorted_RTs_bio, RT_pred_deltas, "standards", query_ref_RT, query_RT_pred_delta, sequence_formatted, "deviation from expected RT", "RT in biological run (minutes)", "expected RT - syn RT (minutes)", "N", "N", "N", out_dir+"\\Figures", sequence_formatted+"_expectedRT")
         
-        swarm_plot(RT_pred_deltas, "standards", query_RT_pred_delta, sequence_formatted, "deviation from expected RT", "expected RT - syn RT (minutes)", out_dir, sequence_formatted, "_expectedRT_dist.png", delta_lo, delta_hi, round(query_percentile,1))   
+        swarm_plot(RT_pred_deltas, "standards", query_RT_pred_delta, sequence_formatted, "deviation from expected RT", "expected RT - syn RT (minutes)", out_dir+"\\Figures\\", sequence_formatted, "_expectedRT_dist.png", delta_lo, delta_hi, round(query_percentile,1))   
     
     print("PCC test: "+PCC_outcome+"     RT test: "+RT_outcome, end="\n\n")
     processing_time = timer(datetime.now(), start_time)

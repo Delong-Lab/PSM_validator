@@ -1,4 +1,3 @@
-from os import chdir
 import matplotlib.pyplot as plt
 from copy import deepcopy
 
@@ -38,13 +37,12 @@ def swarm_plot(y_list, series_name, y_highlight, highlight_series_name, title, y
     plt.legend(loc="lower left", fontsize="large")   
     plt.title(title, fontsize="xx-large", pad = 15)
     plt.ylabel(y_axis_label, fontsize="x-large")
-    chdir(out_dir+"\\Figures")
-    plt.savefig(file_name + file_suffix, bbox_inches = "tight") 
+    plt.savefig(out_dir + file_name + file_suffix, bbox_inches = "tight") 
     plt.close(fig='all')
     
 ##################################################################################################################################################################
 
-def regression_plot(x_values, y_values, series_name, query_x, query_y, query_name, title, x_label, y_label, regression, scientific, text, directory, filename, vline1, vline2):
+def regression_plot(x_values, y_values, series_name, query_x, query_y, query_name, title, x_label, y_label, regression, scientific, text, out_dir, filename, vline1, vline2):
 
     plt.figure(figsize=(5,5))
     plt.scatter(x_values,y_values, label = series_name, color="black")
@@ -86,8 +84,7 @@ def regression_plot(x_values, y_values, series_name, query_x, query_y, query_nam
         plt.plot(fitx, fity, marker = "", color = "black", linestyle = "--")
     if text != "N":
         plt.text(max(x_values), min(y_values),text,fontsize="x-large", horizontalalignment="right")   
-    chdir(directory)
-    plt.savefig(filename + ".png", bbox_inches = "tight")
+    plt.savefig(out_dir + filename + ".png", bbox_inches = "tight")
     plt.close(fig='all')
     
 ##################################################################################################################################################################
@@ -269,8 +266,7 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biom
         plt.text(max(xlimits) + 0.025*xrange,-.55,f"synthetic\n(max={syny_max:.1E})", fontsize="x-large", horizontalalignment="right")        
     plt.text(max(xlimits) + 0.025*xrange,.8,f"biological\n(max={bioy_max:.1E})", fontsize="x-large", horizontalalignment="right")
     plt.xlim(min(xlimits) - 0.05*xrange, max(xlimits) + 0.05*xrange)
-    chdir(out_dir)
-    plt.savefig(filename, bbox_inches = "tight")
+    plt.savefig(out_dir + filename, bbox_inches = "tight")
     plt.close(fig='all')
     
     return (sequence_map, biox, bioy_max, bioy_norm, synx, syny_max, syny_norm)
@@ -302,8 +298,7 @@ def EIC(series1_x, series1_y, series1_RT, series1_label, series2_x, series2_y, s
     
     plt.title("extracted ion chromatograms: " + compoundID, fontsize="xx-large", pad = 15)  
 
-    chdir(out_dir)
-    plt.savefig(filename, bbox_inches = "tight") 
+    plt.savefig(out_dir + filename, bbox_inches = "tight") 
     plt.close(fig='all')
     
 ##################################################################################################################################################################

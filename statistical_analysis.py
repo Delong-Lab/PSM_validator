@@ -1,4 +1,3 @@
-from os import chdir
 from math import atanh, sqrt, tanh
 from statistics import stdev
 from statistics import mean as statmean
@@ -53,8 +52,7 @@ def PCC_percentile_rank(r_list, percentile_thresh, query_r, out_dir, file_name):
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
     plt.title("normality of ISP PCCs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
-    chdir(out_dir+"\\Figures\\normality")
-    plt.savefig(file_name + "_PCC_normality", bbox_inches = "tight") 
+    plt.savefig(out_dir + "\\Figures\\normality\\" + file_name + "_PCC_normality", bbox_inches = "tight") 
     plt.close(fig='all')
     
     #Calculate t-statistic for threshold
@@ -109,8 +107,7 @@ def RT_percentile_rank(RT_pred_deltas, percentile_thresh, query_RT_pred_delta, o
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
     plt.title("normality of ISP delta RTs (p = "+str(round(normality_p,3))+")", fontsize="xx-large", pad = 15)
-    chdir(out_dir+"\\Figures\\normality")
-    plt.savefig(file_name + "_deltaRT_normality", bbox_inches = "tight") 
+    plt.savefig(out_dir + "\\Figures\\normality\\" + file_name + "_deltaRT_normality", bbox_inches = "tight") 
     plt.close(fig='all')
     
     #Calculate t-statistic and prediction interval boundaries
