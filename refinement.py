@@ -108,6 +108,7 @@ def spectrum_merge(refined_mgf, RTtol, pre_mz_tol, pro_mz_tol):
         merged_spectrum.append([merged_mz_statement, merged_abundance])
 
         merged_spectrum.append(reference_scan[4]) 
+        
         ref_peaks = []
         for i in range(5, len(reference_scan) - 1):
             peak = [float(reference_scan[i][0]), float(reference_scan[i][1])]
@@ -116,17 +117,21 @@ def spectrum_merge(refined_mgf, RTtol, pre_mz_tol, pro_mz_tol):
         for i in range(5, len(scan) - 1):
             peak = [float(scan[i][0]), float(scan[i][1])]            
             peaks.append(peak)
+        not_in_ref_peaks= []
         
         for i in range(0, len(peaks)):
             for j in range(0, len(ref_peaks)):
-                if ((ref_peaks[j][0]-ref_peaks[j][0]/1000000*pro_mz_tol) <= peaks[i][0] <= (ref_peaks[j][0]+ref_peaks[j][0]/1000000*pro_mz_tol)):
+                if (ref_peaks[j][0]-ref_peaks[j][0]/1000000*pro_mz_tol) <= peaks[i][0] <= (ref_peaks[j][0]+ref_peaks[j][0]/1000000*pro_mz_tol):
                     ref_peaks[j][0] = (ref_peaks[j][0] + peaks[i][0])/2
                     ref_peaks[j][1] = ref_peaks[j][1] + peaks[i][1]
                     break
-                elif ((peaks[i][0] - ref_peaks[j][0])/ref_peaks[j][0]*1000000) > pro_mz_tol:
-                    ref_peaks.append(peaks[i])
-                    break        
+                elif ((ref_peaks[j][0] - peaks[i][0])/peaks[i][0]*1000000) > pro_mz_tol:
+                    not_in_ref_peaks.append(peaks[i])
+                    break    
+                elif j == len(ref_peaks) - 1:
+                    not_in_ref_peaks.append(peaks[i])
 
+        ref_peaks = ref_peaks + not_in_ref_peaks
         ref_peaks.sort()   
         for i in range(0, len(ref_peaks)):
             merged_spectrum.append(ref_peaks[i])

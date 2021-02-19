@@ -6,11 +6,11 @@ Directory containing msconvert,C:\Program Files\ProteoWizard\ProteoWizard 3.0.18
 ,
 MS1 PARAMETERS,
 input file type,.d
-filters," --filter ""scanTime [600,6000]"" --filter ""mzWindow [300,1400]"" --filter ""threshold absolute 1000 most-intense"""
+filters," --filter ""scanTime [600,6000]"" --filter ""mzWindow [400,1300]"" --filter ""threshold absolute 1000 most-intense"""
 ,
 MGF PARAMETERS,
 input file type,.d
-filters," --filter ""scanTime [600,6000]""  --filter ""mzWindow [50,1700]"" --filter ""MS2Deisotope hi_res mzTol=0.01"" --filter ""threshold bpi-relative 0.04 most-intense"" --filter ""threshold absolute 400 most-intense"""
+filters," --filter ""scanTime [600,6000]""  --filter ""mzWindow [50,1700]"" --filter ""MS2Deisotope hi_res mzTol=0.01"" --filter ""threshold absolute 500 most-intense"""
 ,
 **IMPORTANT NOTE: A SPACE IS REQUIRED AT THE BEGINNING OF THE FILTER ENTRIES ABOVE!**,
 "**IMPORTANT NOTE: CHANGING MSCONVERT SETTINGS CAN DRAMATICALLY IMPACT THE TIME IT TAKES TO PERFORM PSM_VALIDATOR ANALYSES. FOR EXAMPLE, WE HAVE SEEN A ROUGHLY 10X INCREASE IN THE SPEED OF PSM_VALIDATOR ANALYSIS (WITH NO OBSERVABLE LOSS IN PERFORMANCE) WHEN THE MSCONVERT ""THRESHOLD"" FILTER IS USED TO REMOVE LOW-ABUNDANCE PEAKS FROM THE DATA. ",
