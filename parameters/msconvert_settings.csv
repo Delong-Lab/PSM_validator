@@ -10,7 +10,7 @@ filters," --filter ""scanTime [600,6000]"" --filter ""mzWindow [400,1300]"" --fi
 ,
 MGF PARAMETERS,
 input file type,.d
-filters," --filter ""scanTime [600,6000]""  --filter ""mzWindow [50,1700]"" --filter ""MS2Deisotope hi_res mzTol=0.01"" --filter ""threshold absolute 500 most-intense"""
+filters," --filter ""scanTime [600,6000]""  --filter ""mzWindow [50,1700]"" --filter ""MS2Deisotope hi_res mzTol=0.01"" --filter ""threshold absolute 200 most-intense"""
 ,
 **IMPORTANT NOTE: A SPACE IS REQUIRED AT THE BEGINNING OF THE FILTER ENTRIES ABOVE!**,
 "**IMPORTANT NOTE: CHANGING MSCONVERT SETTINGS CAN DRAMATICALLY IMPACT THE TIME IT TAKES TO PERFORM PSM_VALIDATOR ANALYSES. FOR EXAMPLE, WE HAVE SEEN A ROUGHLY 10X INCREASE IN THE SPEED OF PSM_VALIDATOR ANALYSIS (WITH NO OBSERVABLE LOSS IN PERFORMANCE) WHEN THE MSCONVERT ""THRESHOLD"" FILTER IS USED TO REMOVE LOW-ABUNDANCE PEAKS FROM THE DATA. ",
