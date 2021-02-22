@@ -6,7 +6,7 @@ Directory containing msconvert,C:\Program Files\ProteoWizard\ProteoWizard 3.0.18
 ,
 MS1 PARAMETERS,
 input file type,.d
-filters," --filter ""scanTime [600,6000]"" --filter ""mzWindow [400,1300]"" --filter ""threshold absolute 1000 most-intense"""
+filters," --filter ""scanTime [600,6000]"" --filter ""mzWindow [400,1300]"" --filter ""threshold absolute 3000 most-intense"""
 ,
 MGF PARAMETERS,
 input file type,.d
