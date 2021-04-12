@@ -99,8 +99,8 @@ for row in queries_contents:
             print()
             MS1_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + MS1_filetype + ' --ms1 -o ' + directory + MS1_filters
             MGF_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + MGF_filetype + ' --mgf -o ' + directory + MGF_filters
-            command1 = "cmd /c " + MS1_settings
-            command2 = "cmd /c " + MGF_settings
+            command1 = 'cmd /c "' + MS1_settings + '"'
+            command2 = 'cmd /c "' + MGF_settings + '"'
             system(command1)
             system(command2)
             msconvert_settings = [[MS1_settings], [MGF_settings], ["Precursor refinement and MS2 spectrum merging performed"]] 
