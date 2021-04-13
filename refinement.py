@@ -35,7 +35,7 @@ def precursor_refine(sample_ms1, sample_mgf):
     scan = []
     for row in MS1content:
         row = list(row)
-        if "S\t0\t0" in row:
+        if "S\t" in row[0]:
             if MS1content.line_num > 5:
                 MS1_data[1].append(scan)
             scan_start = int(MS1content.line_num) 
@@ -43,7 +43,7 @@ def precursor_refine(sample_ms1, sample_mgf):
         elif "RTime" in row[0]:
             RT_minutes = float(row[0][8:]) 
             MS1_data[0].append(RT_minutes)
-        elif (MS1content.line_num > (scan_start + 4)):
+        elif (MS1content.line_num > (scan_start + 5)):
                 scan.append(float(row[0]))
     MS1.close()
 

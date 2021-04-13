@@ -38,7 +38,7 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
     settings_contents=reader(settings_file, delimiter=",")
     row_num = 0
     for row in settings_contents:
-        if row_num == 16:
+        if 2 <= row_num <= 6 or 21 <= row_num:
             parameter = list(row)
             settings.append(parameter[2])
         elif row_num > 1:
@@ -47,21 +47,21 @@ def validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biolo
         row_num = row_num + 1
     settings_file.close()
     
-    pre_mz_tol = settings[0]
-    pro_mz_tol = settings[1]
-    abund_thresh = settings[2]
-    PCC_abund_thresh = settings[3]
-    min_score = settings[4]
-    min_weighted_score = settings[5]
-    min_pairs_PCC = settings[6]    
-    min_PCC = settings[7]    
-    RTtol = settings[8]
-    min_RT = settings[9]
-    max_RT = settings[10]
-    manual_RTdev_thresh = settings[11]
-    min_intstd = settings[12]
-    percentile_thresh = settings[13]
-    ion_type = settings[14]
+    pre_mz_tol = settings[5]
+    pro_mz_tol = settings[6]
+    abund_thresh = settings[7]
+    PCC_abund_thresh = settings[8]
+    min_score = settings[9]
+    min_weighted_score = settings[10]
+    min_pairs_PCC = settings[11]    
+    min_PCC = settings[12]    
+    RTtol = settings[13]
+    min_RT = settings[14]
+    max_RT = settings[15]
+    manual_RTdev_thresh = settings[16]
+    min_intstd = settings[17]
+    percentile_thresh = settings[18]
+    ion_type = settings[19]
     
     amino_acids = {}
     amino_acids_file = open(scriptdir+"\\parameters\\amino_acids.csv")

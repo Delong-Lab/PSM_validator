@@ -24,7 +24,7 @@ def MS1_RTfilter(RTtol, roughRT_list, MS1path):
     collect = "no"
     for row in MS1content:
         row = list(row)
-        if "S\t0\t0" in row: 
+        if "S\t" in row[0]: 
             scan_start = int(MS1content.line_num) 
             collect = "no"
         elif "RTime" in row[0]:
@@ -34,7 +34,7 @@ def MS1_RTfilter(RTtol, roughRT_list, MS1path):
                     MS1filtered.append(row)
                     collect = "yes"
                     break       
-        elif (MS1content.line_num > (scan_start + 4)) and collect == "yes":
+        elif (MS1content.line_num > (scan_start + 5)) and collect == "yes":
                 MS1filtered.append(row)    
     MS1.close()
     

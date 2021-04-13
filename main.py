@@ -30,7 +30,7 @@ settings_file = open(scriptdir+"\\parameters\\settings.csv")
 settings_contents=reader(settings_file, delimiter=",")
 row_num = 0
 for row in settings_contents:
-    if row_num == 16:
+    if 2 <= row_num <= 6 or 21 <= row_num:
         parameter = list(row)
         settings.append(parameter[2])
     elif row_num > 1:
@@ -39,22 +39,17 @@ for row in settings_contents:
     row_num = row_num + 1
 settings_file.close()
 
-pre_mz_tol = settings[0]
-pro_mz_tol = settings[1]
-abund_thresh = settings[2]
-PCC_abund_thresh = settings[3]
-min_score = settings[4]
-min_weighted_score = settings[5]
-min_pairs_PCC = settings[6]    
-min_PCC = settings[7]    
-RTtol = settings[8]
-min_RT = settings[9]
-max_RT = settings[10]
-manual_RTdev_thresh = settings[11]
-min_intstd = settings[12]
-percentile_thresh = settings[13]
-ion_type = settings[14]
-       
+convert = settings[0]
+msconvert_directory = settings[1]
+filetype = settings[2]
+MS1_filters = settings[3]
+MGF_filters = settings[4]
+pre_mz_tol = settings[5]
+pro_mz_tol = settings[6]  
+RTtol = settings[13]
+space_saver = settings[20]
+verbose = settings[21]
+   
 queries_file = open(scriptdir+"\\parameters\\queries.csv")
 queries_contents = reader(queries_file, delimiter = ",")
 row_num = 0
@@ -62,31 +57,6 @@ for row in queries_contents:
     if row_num == 1:
         directory_row = list(row)
         directory = directory_row[1]
-         
-        msconvert_settings_file = open(scriptdir+"\\parameters\\msconvert_settings.csv")
-        msconvert_settings_contents=reader(msconvert_settings_file, delimiter=",")
-        line = 0
-        for row in msconvert_settings_contents:
-            if line == 2:
-                msconvert_row = list(row)
-                convert = msconvert_row[1]                   
-            elif line == 4:
-                msconvert_directory_row = list(row)
-                msconvert_directory = msconvert_directory_row[1]
-            elif line == 7:
-                MS1_filetype_row = list(row)
-                MS1_filetype = MS1_filetype_row[1]
-            elif line == 8:
-                MS1_filters_row = list(row)
-                MS1_filters = MS1_filters_row[1]
-            elif line == 11:
-                MGF_filetype_row = list(row)
-                MGF_filetype = MGF_filetype_row[1]
-            elif line == 12:
-                MGF_filters_row = list(row)
-                MGF_filters = MGF_filters_row[1]
-            line = line + 1
-        msconvert_settings_file.close()
         
         if convert == "Y":
             
@@ -97,8 +67,8 @@ for row in queries_contents:
                     
             print("Converting/filtering data files...")
             print()
-            MS1_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + MS1_filetype + ' --ms1 -o ' + directory + MS1_filters
-            MGF_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + MGF_filetype + ' --mgf -o ' + directory + MGF_filters
+            MS1_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + filetype + ' --ms1 -o ' + directory + ' ' + MS1_filters
+            MGF_settings = 'cd ' + msconvert_directory + '& msconvert ' + directory + '\*' + filetype + ' --mgf -o ' + directory + ' ' + MGF_filters
             command1 = 'cmd /c "' + MS1_settings + '"'
             command2 = 'cmd /c "' + MGF_settings + '"'
             system(command1)
@@ -125,6 +95,12 @@ for row in queries_contents:
                     
         else: 
             msconvert_settings = [["File conversion/filtering, precursor refinement, and MS2 spectrum merging not performed"]]
+
+        if space_saver == "Y":
+            files = listdir(directory)
+            for i in range(0, len(files)):
+                if "_precursors_refined.mgf" in files[i] or "_raw.mgf" in files[i]:
+                    remove(directory + "\\" + files[i])
             
     if row_num > 2:   
         analysis = list(row)
@@ -137,7 +113,6 @@ for row in queries_contents:
             biological, synthetic = analysis[0], analysis[1]
             sequence = analysis[3]
             N_term_shift, C_term_shift = float(analysis[2]), float(analysis[4])
-            verbose = analysis[5]
             results = validation(scriptdir, sequence, N_term_shift, C_term_shift, directory, biological, synthetic, verbose, msconvert_settings, version)
             output = analysis + list(results)
             batch_results_writer.writerow(output)

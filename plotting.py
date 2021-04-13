@@ -56,7 +56,7 @@ def regression_plot(x_values, y_values, series_name, query_x, query_y, query_nam
     y_bottom = y_min - 0.3*y_range
     y_top = y_max + 0.1*y_range
     if vline1 != "N" and vline2 != "N":
-        plt.vlines([vline1, vline2], [y_bottom, y_bottom], [y_top, y_top], linestyles="dotted", lw=2)
+        plt.vlines([vline1, vline2], [y_bottom, y_bottom], [y_top, y_top], linestyles="dotted", lw=2, color = "black")
     if query_x != "NA":
         plt.scatter(query_x, query_y, label = query_name, color = "red", marker = "s", s = 60)
         plt.ylim(y_bottom, y_top)
@@ -257,8 +257,8 @@ def mirror_plot(hyphen, sequence, N_term_shift, C_term_shift, abund_thresh, biom
     plt.legend(loc="lower right", fontsize="x-large")
     bio_hline = max(biomin/bioy_max, abund_thresh/bioy_max)
     syn_hline = max(synmin/syny_max, abund_thresh/syny_max)
-    plt.hlines(y=bio_hline, xmin=min(xlimits), xmax=max(xlimits), linestyles="dotted", lw=3)
-    plt.hlines(y=-syn_hline, xmin=min(xlimits), xmax=max(xlimits), linestyles="dotted", lw=3)
+    plt.hlines(y=bio_hline, xmin=min(xlimits), xmax=max(xlimits), linestyles="dotted", lw=3, color = "black")
+    plt.hlines(y=-syn_hline, xmin=min(xlimits), xmax=max(xlimits), linestyles="dotted", lw=3, color = "black")
     xrange = max(xlimits) - min(xlimits)
     if hyphen == -1:
         plt.text(max(xlimits) + 0.025*xrange,-.65,f"synthetic\n(max={syny_max:.1E})", fontsize="x-large", horizontalalignment="right")
@@ -284,7 +284,7 @@ def EIC(series1_x, series1_y, series1_RT, series1_label, series2_x, series2_y, s
     plt.ticklabel_format(style="sci", scilimits=(0,0), axis="y")
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
-    plt.vlines(x = series1_RT, ymin = 0, ymax = max(series1_y), linestyles = "dashed")
+    plt.vlines(x = series1_RT, ymin = 0, ymax = max(series1_y), linestyles = "dashed", color = "black")
     plt.text(series1_RT, 0.03*max(series1_y), round(series1_RT, 1), color = "blue", fontsize = "x-large", horizontalalignment = "center", bbox = dict(facecolor = "white", edgecolor = "None"))
     
     ax2=ax.twinx()
@@ -293,7 +293,7 @@ def EIC(series1_x, series1_y, series1_RT, series1_label, series2_x, series2_y, s
     plt.ticklabel_format(style="sci", scilimits=(0,0), axis="y")
     plt.xticks(fontsize="large")
     plt.yticks(fontsize="large")
-    plt.vlines(x = series2_RT, ymin = 0, ymax = max(series2_y), linestyles = "dashed")
+    plt.vlines(x = series2_RT, ymin = 0, ymax = max(series2_y), linestyles = "dashed", color = "black")
     plt.text(series2_RT, 0.03*max(series2_y), round(series2_RT, 1), color = "red", fontsize = "x-large", horizontalalignment = "center", bbox = dict(facecolor = "white", edgecolor = "None"))
     
     plt.title("extracted ion chromatograms: " + compoundID, fontsize="xx-large", pad = 15)  

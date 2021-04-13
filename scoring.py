@@ -10,7 +10,7 @@ def LR_score(abund_thresh,pro_mz_tol,min_score,min_weighted_score,hits,hits_writ
 ##    ["HEHISS-DYAGK", leading_score, leading_weighted_score, leading_scan, leading_L_ions, leading_R_ions],
 ##    ...
 ##    ]
-
+    
     query_details = []
     top_hits=[]
     charge_list = []
