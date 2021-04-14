@@ -109,7 +109,7 @@ for row in queries_contents:
                 batch_results=open(directory + "\\PSM_validator_" + timestamp + "_results.csv","w",newline="")
                 batch_results_writer=writer(batch_results) 
                 batch_results_writer.writerow(["DIRECTORY:", directory])
-                batch_results_writer.writerow(["bio sample", "syn sample", "N-term mass shift", "sequence", "C-term mass shift", "verbose", "processing time (min:sec)", "PCC", "PCC percentile rank", "deviation from expected RT (minutes)", "RT percentile rank", "PCC outcome", "RT outcome", "WARNINGS"])
+                batch_results_writer.writerow(["bio sample", "syn sample", "N-term mass shift", "sequence", "C-term mass shift", "processing time (min:sec)", "PCC", "PCC percentile rank", "deviation from expected RT (minutes)", "RT percentile rank", "PCC outcome", "RT outcome", "WARNINGS"])
             biological, synthetic = analysis[0], analysis[1]
             sequence = analysis[3]
             N_term_shift, C_term_shift = float(analysis[2]), float(analysis[4])
